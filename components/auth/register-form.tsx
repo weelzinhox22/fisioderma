@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { motion } from "framer-motion"
-import { Loader2, Mail, Lock, User } from "lucide-react"
+import { Loader2, Mail, Lock, User, AlertCircle } from "lucide-react"
 import { FcGoogle } from "react-icons/fc"
 import { Separator } from "@/components/ui/separator"
 
@@ -29,6 +29,7 @@ export function RegisterForm() {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const { supabase } = useSupabase()
   const router = useRouter()
   const { toast } = useToast()
@@ -36,11 +37,13 @@ export function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setErrorMsg(null)
 
     try {
       // Verificar se o cliente Supabase está disponível
       if (!supabase) {
         // Modo de demonstração - simular registro
+        console.log("Supabase não disponível, simulando registro")
         setTimeout(() => {
           toast({
             title: "Modo de demonstração",
@@ -51,6 +54,8 @@ export function RegisterForm() {
         return
       }
 
+      console.log("Iniciando registro com Supabase")
+      
       // Registrar o usuário
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -58,25 +63,58 @@ export function RegisterForm() {
         options: {
           data: {
             name,
+            role: "basic" // Definir role nos metadados do usuário
           },
         },
       })
 
       if (authError) {
-        throw authError
+        console.error("Erro ao registrar usuário:", authError)
+        // Traduzir mensagens de erro comuns
+        let mensagem = "Erro ao registrar conta. Por favor, tente novamente."
+        
+        if (authError.message.includes("email") && authError.message.includes("taken")) {
+          mensagem = "Este email já está em uso. Tente fazer login ou recuperar sua senha."
+        } else if (authError.message.includes("password") && authError.message.includes("length")) {
+          mensagem = "A senha deve ter pelo menos 6 caracteres."
+        }
+        
+        throw new Error(mensagem)
       }
 
-      if (authData.user) {
-        // Criar perfil do usuário com papel padrão
-        const { error: profileError } = await supabase.from("profiles").insert({
-          id: authData.user.id,
-          name,
-          email,
-          role: "basic", // Papel padrão
-        })
+      if (!authData.user) {
+        throw new Error("Falha ao criar usuário")
+      }
 
-        if (profileError) {
-          throw profileError
+      console.log("Usuário registrado com sucesso:", authData.user.id)
+
+      // Inserir perfil do usuário na tabela user_profiles
+      const { error: profileError } = await supabase
+        .from("user_profiles")
+        .insert({
+          id: authData.user.id,
+          name: name,
+          email: email,
+          role: "basic",
+          created_at: new Date().toISOString()
+        });
+
+      // Se houver erro ao criar o perfil, tente criar na tabela profiles (fallback)
+      if (profileError) {
+        console.warn("Erro ao inserir em user_profiles, tentando tabela profiles:", profileError)
+        
+        const { error: oldProfileError } = await supabase
+          .from("profiles")
+          .insert({
+            id: authData.user.id,
+            name: name,
+            email: email,
+            role: "basic"
+          });
+          
+        if (oldProfileError) {
+          console.error("Erro ao inserir perfil na tabela profiles:", oldProfileError)
+          // Não lançamos erro aqui, pois o usuário já foi criado na Auth
         }
       }
 
@@ -85,8 +123,11 @@ export function RegisterForm() {
         description: "Verifique seu email para confirmar sua conta.",
       })
 
+      // Redirecionar para página de login
       router.push("/login")
     } catch (error: any) {
+      console.error("Erro no processo de registro:", error)
+      setErrorMsg(error.message || "Ocorreu um erro ao criar sua conta.")
       toast({
         title: "Erro ao registrar",
         description: error.message || "Ocorreu um erro ao criar sua conta.",
@@ -99,6 +140,8 @@ export function RegisterForm() {
 
   const handleGoogleSignUp = async () => {
     setIsGoogleLoading(true)
+    setErrorMsg(null)
+    
     try {
       if (!supabase) {
         throw new Error("Supabase não está disponível")
@@ -115,6 +158,8 @@ export function RegisterForm() {
         throw error
       }
     } catch (error: any) {
+      console.error("Erro ao registrar com Google:", error)
+      setErrorMsg(error.message || "Ocorreu um erro ao tentar registrar com Google.")
       toast({
         title: "Erro ao registrar com Google",
         description: error.message || "Ocorreu um erro ao tentar registrar com Google.",
@@ -131,6 +176,15 @@ export function RegisterForm() {
       transition={{ duration: 0.4 }}
       className="space-y-5"
     >
+      {errorMsg && (
+        <div className="bg-red-50 border-l-4 border-red-400 p-3 rounded-md">
+          <div className="flex items-start">
+            <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-2" />
+            <p className="text-sm text-red-800">{errorMsg}</p>
+          </div>
+        </div>
+      )}
+
       <Button
         type="button"
         variant="outline"
@@ -248,16 +302,13 @@ export function RegisterForm() {
           >
           {isLoading ? (
               <div className="flex items-center justify-center">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                <Loader2 className="h-5 w-5 animate-spin mr-2" /> 
                 <span>Registrando...</span>
               </div>
-          ) : (
-              <div className="flex items-center justify-center">
-                <Mail className="mr-2 h-4 w-4" /> 
-                <span>Criar conta</span>
-              </div>
-          )}
-        </Button>
+            ) : (
+              "Criar conta"
+            )}
+          </Button>
         </motion.div>
       </form>
     </motion.div>
