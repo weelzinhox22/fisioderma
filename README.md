@@ -9,7 +9,7 @@ Plataforma educacional para fisioterapia dermatofuncional.
 Para executar este projeto corretamente, você precisa configurar as seguintes variáveis de ambiente:
 
 1. **GROQ_API_KEY**: Chave de API para o assistente de IA
-   - Obtenha sua chave
+   - Obtenha sua chave em [https://console.groq.com/keys](https://console.groq.com/keys)
    - Configure esta chave no painel de controle da Vercel em Settings > Environment Variables
 
 2. **NEXT_PUBLIC_SUPABASE_URL**: URL do seu projeto Supabase

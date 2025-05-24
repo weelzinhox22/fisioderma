@@ -3,6 +3,7 @@
 import { LoginForm } from "@/components/auth/login-form"
 import { Navbar } from "@/components/navbar"
 import Link from "next/link"
+import { Suspense } from "react"
 
 // Cores em tons bege/nude refinados
 const colors = {
@@ -11,6 +12,18 @@ const colors = {
   primaryLighter: '#F8F3EE',    // Versão ainda mais clara para backgrounds (ajustado para mais branco)
   primaryDark: '#9F7D5D',       // Versão mais escura
   accentGold: '#D4B78F',        // Tom dourado para acentos
+}
+
+// Componente de carregamento para o Suspense
+function LoginFormSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="h-10 bg-gray-200 rounded-md w-full"></div>
+      <div className="h-5 bg-gray-200 rounded-md w-full"></div>
+      <div className="h-10 bg-gray-200 rounded-md w-full"></div>
+      <div className="h-10 bg-gray-200 rounded-md w-full"></div>
+    </div>
+  )
 }
 
 export default function LoginPage() {
@@ -82,7 +95,9 @@ export default function LoginPage() {
               borderTop: `3px solid ${colors.primary}`
             }}
           >
-            <LoginForm />
+            <Suspense fallback={<LoginFormSkeleton />}>
+              <LoginForm />
+            </Suspense>
 
             <div className="mt-5 text-center text-sm">
               <p className="text-neutral-600">
