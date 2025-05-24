@@ -8,15 +8,22 @@ console.log("Verificando configuração do Groq API: ",
   "Chave não encontrada"
 )
 
-// Verificar se a chave da API está configurada
-if (!process.env.GROQ_API_KEY) {
-  throw new Error("GROQ_API_KEY não está configurada")
+// Verificar se estamos em ambiente de produção
+const isProduction = process.env.NODE_ENV === 'production'
+
+// Função para criar o cliente Groq apenas se a chave estiver disponível
+const getGroqClient = () => {
+  if (!process.env.GROQ_API_KEY) {
+    return null
+  }
+  
+  return new Groq({ 
+    apiKey: process.env.GROQ_API_KEY 
+  })
 }
 
 // Inicializar o cliente Groq com a chave da API
-const groq = new Groq({ 
-  apiKey: process.env.GROQ_API_KEY 
-})
+const groq = getGroqClient()
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,6 +40,14 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("Processando mensagem do usuário:", lastMessage.content.substring(0, 50) + "...")
+
+    // Verificar se o cliente Groq está disponível
+    if (!groq) {
+      console.warn("API do Groq não configurada. Retornando resposta de fallback.")
+      return NextResponse.json({ 
+        message: "Desculpe, o serviço de IA está temporariamente indisponível. Por favor, tente novamente mais tarde ou entre em contato com o suporte." 
+      })
+    }
 
     // Mensagem do sistema para orientar o comportamento do assistente
     const systemMessage = {

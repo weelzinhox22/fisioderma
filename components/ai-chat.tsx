@@ -5,11 +5,11 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Send, Loader2 } from "lucide-react"
+import { Send, Loader2, AlertCircle } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 type Message = {
-  role: "user" | "assistant"
+  role: "user" | "assistant" | "system"
   content: string
 }
 
@@ -22,6 +22,7 @@ export function AIChat() {
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [apiError, setApiError] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -57,19 +58,33 @@ export function AIChat() {
       })
 
       if (!response.ok) {
-        throw new Error("Falha na resposta da API")
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Falha na resposta da API")
       }
 
       const data = await response.json()
 
+      if (data.error) {
+        throw new Error(data.error)
+      }
+
       setMessages((prev) => [...prev, { role: "assistant", content: data.message }])
+      setApiError(false)
     } catch (error) {
       console.error("Erro ao gerar resposta:", error)
+      
+      // Verificar se é um erro de configuração
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
+      
+      if (errorMessage.includes("configuração") || errorMessage.includes("indisponível")) {
+        setApiError(true)
+      }
+      
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: "Desculpe, tive um problema ao processar sua pergunta. Pode tentar novamente?",
+          content: errorMessage || "Desculpe, tive um problema ao processar sua pergunta. Pode tentar novamente?",
         },
       ])
     } finally {
@@ -80,6 +95,17 @@ export function AIChat() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {apiError && (
+          <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-4">
+            <div className="flex items-center">
+              <AlertCircle className="h-5 w-5 text-amber-400 mr-2" />
+              <p className="text-sm text-amber-700">
+                O serviço de IA está temporariamente indisponível. Algumas funcionalidades podem estar limitadas.
+              </p>
+            </div>
+          </div>
+        )}
+        
         <AnimatePresence>
           {messages.map((message, index) => (
             <motion.div
