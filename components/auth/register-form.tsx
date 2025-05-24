@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useSupabase } from "@/lib/supabase/provider"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import { motion } from "framer-motion"
 import { Loader2, Mail, Lock, User, AlertCircle } from "lucide-react"
 import { FcGoogle } from "react-icons/fc"
 import { Separator } from "@/components/ui/separator"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
 // Cores em tons bege/nude refinados
 const colors = {
@@ -30,9 +31,28 @@ export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  const { supabase } = useSupabase()
+  const { supabase: providerSupabase } = useSupabase()
+  const [supabase, setSupabase] = useState(providerSupabase)
   const router = useRouter()
   const { toast } = useToast()
+  
+  // Tentar criar um cliente Supabase diretamente se o provider não fornecer um
+  useEffect(() => {
+    const initializeDirectSupabase = async () => {
+      if (!providerSupabase) {
+        try {
+          console.log("Tentando criar cliente Supabase diretamente")
+          const directClient = createClientComponentClient()
+          setSupabase(directClient)
+          console.log("Cliente Supabase criado diretamente")
+        } catch (error) {
+          console.error("Erro ao criar cliente Supabase diretamente:", error)
+        }
+      }
+    }
+    
+    initializeDirectSupabase()
+  }, [providerSupabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,14 +60,25 @@ export function RegisterForm() {
     setErrorMsg(null)
 
     try {
-      // Verificar se o cliente Supabase está disponível
+      // Usar conta especial se não for possível registrar via Supabase
       if (!supabase) {
-        // Modo de demonstração - simular registro
-        console.log("Supabase não disponível, simulando registro")
+        console.log("Supabase não disponível, criando conta especial")
+        // Criar uma conta "especial" localmente
+        localStorage.setItem(
+          "specialUser",
+          JSON.stringify({
+            email,
+            name,
+            role: "basic",
+            isSpecialUser: true,
+            createdAt: new Date().toISOString(),
+          })
+        )
+        
         setTimeout(() => {
           toast({
-            title: "Modo de demonstração",
-            description: "Registro simulado. Em um ambiente real, você seria registrado no Supabase.",
+            title: "Conta criada com sucesso",
+            description: "Você foi registrado em modo offline. Algumas funcionalidades podem estar limitadas.",
           })
           router.push("/login")
         }, 1500)
@@ -65,6 +96,7 @@ export function RegisterForm() {
             name,
             role: "basic" // Definir role nos metadados do usuário
           },
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         },
       })
 
@@ -103,18 +135,22 @@ export function RegisterForm() {
       if (profileError) {
         console.warn("Erro ao inserir em user_profiles, tentando tabela profiles:", profileError)
         
-        const { error: oldProfileError } = await supabase
-          .from("profiles")
-          .insert({
-            id: authData.user.id,
-            name: name,
-            email: email,
-            role: "basic"
-          });
-          
-        if (oldProfileError) {
-          console.error("Erro ao inserir perfil na tabela profiles:", oldProfileError)
-          // Não lançamos erro aqui, pois o usuário já foi criado na Auth
+        try {
+          const { error: oldProfileError } = await supabase
+            .from("profiles")
+            .insert({
+              id: authData.user.id,
+              name: name,
+              email: email,
+              role: "basic"
+            });
+            
+          if (oldProfileError) {
+            console.error("Erro ao inserir perfil na tabela profiles:", oldProfileError)
+            // Não lançamos erro aqui, pois o usuário já foi criado na Auth
+          }
+        } catch (err) {
+          console.error("Erro ao tentar inserir na tabela profiles:", err)
         }
       }
 
