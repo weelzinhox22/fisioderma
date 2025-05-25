@@ -13,6 +13,7 @@ import { motion } from "framer-motion"
 import { Loader2, Mail, Lock, AlertCircle } from "lucide-react"
 import { FcGoogle } from "react-icons/fc"
 import { Separator } from "@/components/ui/separator"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
 // Cores em tons bege/nude refinados
 const colors = {
@@ -22,6 +23,10 @@ const colors = {
   primaryDark: '#9F7D5D',       // Versão mais escura
   accentGold: '#D4B78F',        // Tom dourado para acentos
 }
+
+// Constantes do Supabase
+const SUPABASE_URL = "https://htmkhefvctwmbrgeejkh.supabase.co"
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
@@ -48,22 +53,27 @@ export function LoginForm() {
     
     // Verificar conectividade com o Supabase
     const checkConnection = async () => {
-      if (supabase) {
-        try {
-          const start = Date.now()
-          const { error } = await supabase.auth.getSession()
-          const elapsed = Date.now() - start
-          
-          if (error || elapsed > 5000) {
-            console.warn("Problemas de conectividade com Supabase:", { error, elapsed })
-            setNetworkError(true)
-          } else {
-            setNetworkError(false)
-          }
-        } catch (e) {
-          console.error("Erro ao verificar conexão:", e)
+      try {
+        const start = Date.now()
+        
+        // Criar cliente direto com as credenciais fixas para o teste
+        const testClient = createClientComponentClient({
+          supabaseUrl: SUPABASE_URL,
+          supabaseKey: SUPABASE_ANON_KEY,
+        })
+        
+        const { error } = await testClient.auth.getSession()
+        const elapsed = Date.now() - start
+        
+        if (error || elapsed > 5000) {
+          console.warn("Problemas de conectividade com Supabase:", { error, elapsed })
           setNetworkError(true)
+        } else {
+          setNetworkError(false)
         }
+      } catch (e) {
+        console.error("Erro ao verificar conexão:", e)
+        setNetworkError(true)
       }
     }
     
@@ -77,7 +87,6 @@ export function LoginForm() {
     try {
       console.log("Iniciando processo de login...")
       console.log("Email:", email)
-      console.log("Cliente Supabase disponível:", !!supabase)
 
       // Verificar credenciais especiais
       if (
@@ -111,10 +120,13 @@ export function LoginForm() {
         return
       }
 
-      // Login normal com Supabase
-      if (!supabase) {
-        throw new Error("Erro de configuração: Cliente Supabase não está disponível")
-      }
+      // Criar cliente Supabase com credenciais fixas
+      const authClient = createClientComponentClient({
+        supabaseUrl: SUPABASE_URL,
+        supabaseKey: SUPABASE_ANON_KEY,
+      })
+      
+      console.log("Cliente Supabase criado com credenciais fixas")
       
       // Verificar conectividade antes de tentar login
       if (networkError) {
@@ -124,7 +136,7 @@ export function LoginForm() {
       console.log("Tentando login com Supabase...")
 
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await authClient.auth.signInWithPassword({
           email,
           password,
         })

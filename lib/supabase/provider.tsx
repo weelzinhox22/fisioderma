@@ -7,6 +7,10 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { SupabaseClient, User } from "@supabase/auth-helpers-nextjs"
 import { useRouter } from "next/navigation"
 
+// Constantes do Supabase
+const SUPABASE_URL = "https://htmkhefvctwmbrgeejkh.supabase.co"
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA"
+
 type SupabaseContext = {
   supabase: SupabaseClient | null
   user: User | null
@@ -47,133 +51,99 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
           }
         }
         
-        // Tentar criar cliente sem especificar configurações
-        let supabaseClient;
-        try {
-          console.log("Tentando criar cliente Supabase com configurações padrão...")
-          supabaseClient = createClientComponentClient()
-          
-          // Verificar se a conexão é válida tentando uma operação básica
-          const { error: testError } = await supabaseClient.auth.getSession()
-          if (testError) {
-            console.warn("Erro ao testar conexão Supabase:", testError)
-            throw new Error("Teste de conexão falhou")
-          }
-          
-          console.log("Cliente Supabase criado com sucesso")
-          setSupabase(supabaseClient)
-        } catch (initError) {
-          console.warn("Falha ao inicializar Supabase normalmente:", initError)
-          
-          // Verificar se as variáveis de ambiente estão definidas
-          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-          const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-          
-          console.log("Variáveis de ambiente disponíveis:", {
-            url: supabaseUrl ? "Definida" : "Não definida",
-            key: supabaseKey ? "Definida" : "Não definida"
-          })
-          
-          if (!supabaseUrl || !supabaseKey) {
-            throw new Error("Variáveis de ambiente do Supabase não estão configuradas")
-          }
-          
-          // Fallback: tentar criar usando URL e chave explicitamente
-          console.log("Tentando criar cliente Supabase com configurações explícitas...")
-          supabaseClient = createClientComponentClient({
-            supabaseUrl,
-            supabaseKey,
-          })
-          
-          setSupabase(supabaseClient)
+        // Criar cliente Supabase com as credenciais fixas
+        console.log("Criando cliente Supabase com credenciais fixas...")
+        const supabaseClient = createClientComponentClient({
+          supabaseUrl: SUPABASE_URL,
+          supabaseKey: SUPABASE_ANON_KEY,
+        })
+        
+        console.log("Cliente Supabase criado com sucesso")
+        setSupabase(supabaseClient)
+
+        // Verificar sessão atual
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession()
+        
+        if (sessionError) {
+          console.error("Erro ao obter sessão:", sessionError)
+          throw sessionError
         }
 
-        // Se temos um cliente Supabase válido, tente obter a sessão
-        if (supabaseClient) {
-          // Verificar sessão atual
-          const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession()
-          
-          if (sessionError) {
-            console.error("Erro ao obter sessão:", sessionError)
-            throw sessionError
-          }
+        console.log("Sessão obtida:", !!session)
+        setUser(session?.user ?? null)
 
-          console.log("Sessão obtida:", !!session)
+        if (session?.user) {
+          // Buscar perfil do usuário
+          try {
+            // Primeiro tentar tabela user_profiles
+            const { data: userProfileData, error: userProfileError } = await supabaseClient
+              .from("user_profiles")
+              .select("role")
+              .eq("id", session.user.id)
+              .single()
+              
+            if (!userProfileError && userProfileData) {
+              console.log("Perfil obtido de user_profiles:", userProfileData)
+              setUserRole(userProfileData?.role ?? null)
+            } else {
+              console.warn("Erro ou sem dados em user_profiles, tentando profiles:", userProfileError)
+              
+              // Fallback para tabela profiles
+              const { data: profileData, error: profileError } = await supabaseClient
+                .from("profiles")
+                .select("role")
+                .eq("id", session.user.id)
+                .single()
+
+              if (profileError) {
+                console.warn("Erro ao buscar perfil em profiles:", profileError)
+              } else {
+                console.log("Perfil obtido de profiles:", profileData)
+                setUserRole(profileData?.role ?? null)
+              }
+            }
+          } catch (profileErr) {
+            console.error("Erro ao buscar dados de perfil:", profileErr)
+          }
+        }
+
+        // Configurar listener de mudança de autenticação
+        const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+          console.log("Mudança de estado de autenticação:", event)
           setUser(session?.user ?? null)
 
           if (session?.user) {
-            // Buscar perfil do usuário
             try {
-              // Primeiro tentar tabela user_profiles
-              const { data: userProfileData, error: userProfileError } = await supabaseClient
+              // Tentar ambas as tabelas para buscar o perfil
+              const { data: profileData } = await supabaseClient
                 .from("user_profiles")
                 .select("role")
                 .eq("id", session.user.id)
                 .single()
                 
-              if (!userProfileError && userProfileData) {
-                console.log("Perfil obtido de user_profiles:", userProfileData)
-                setUserRole(userProfileData?.role ?? null)
+              if (profileData) {
+                setUserRole(profileData?.role ?? null)
               } else {
-                console.warn("Erro ou sem dados em user_profiles, tentando profiles:", userProfileError)
-                
-                // Fallback para tabela profiles
-                const { data: profileData, error: profileError } = await supabaseClient
+                const { data: oldProfileData } = await supabaseClient
                   .from("profiles")
                   .select("role")
                   .eq("id", session.user.id)
                   .single()
-
-                if (profileError) {
-                  console.warn("Erro ao buscar perfil em profiles:", profileError)
-                } else {
-                  console.log("Perfil obtido de profiles:", profileData)
-                  setUserRole(profileData?.role ?? null)
-                }
+                  
+                setUserRole(oldProfileData?.role ?? null)
               }
             } catch (profileErr) {
-              console.error("Erro ao buscar dados de perfil:", profileErr)
+              console.error("Erro ao buscar perfil em onAuthStateChange:", profileErr)
             }
+          } else {
+            setUserRole(null)
           }
 
-          // Configurar listener de mudança de autenticação
-          const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            console.log("Mudança de estado de autenticação:", event)
-            setUser(session?.user ?? null)
+          router.refresh()
+        })
 
-            if (session?.user) {
-              try {
-                // Tentar ambas as tabelas para buscar o perfil
-                const { data: profileData } = await supabaseClient
-                  .from("user_profiles")
-                  .select("role")
-                  .eq("id", session.user.id)
-                  .single()
-                  
-                if (profileData) {
-                  setUserRole(profileData?.role ?? null)
-                } else {
-                  const { data: oldProfileData } = await supabaseClient
-                    .from("profiles")
-                    .select("role")
-                    .eq("id", session.user.id)
-                    .single()
-                    
-                  setUserRole(oldProfileData?.role ?? null)
-                }
-              } catch (profileErr) {
-                console.error("Erro ao buscar perfil em onAuthStateChange:", profileErr)
-              }
-            } else {
-              setUserRole(null)
-            }
-
-            router.refresh()
-          })
-
-          return () => {
-            subscription.unsubscribe()
-          }
+        return () => {
+          subscription.unsubscribe()
         }
       } catch (error: any) {
         console.error("Erro na inicialização do Supabase:", error)

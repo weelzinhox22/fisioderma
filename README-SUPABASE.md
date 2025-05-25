@@ -4,11 +4,12 @@ Este documento fornece instruções sobre como configurar o Supabase para autent
 
 ## Configuração do Supabase
 
-### 1. Crie um projeto no Supabase
+### 1. Credenciais do Supabase
 
-1. Acesse [supabase.com](https://supabase.com/) e faça login
-2. Crie um novo projeto
-3. Anote a URL do projeto e a chave anônima (anon key)
+As credenciais do Supabase para este projeto são:
+
+- **URL do Projeto**: `https://htmkhefvctwmbrgeejkh.supabase.co`
+- **Chave Anônima**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA`
 
 ### 2. Configure as variáveis de ambiente
 
@@ -17,16 +18,16 @@ Este documento fornece instruções sobre como configurar o Supabase para autent
 Crie um arquivo `.env.local` na raiz do projeto com as seguintes variáveis:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anonima-aqui
+NEXT_PUBLIC_SUPABASE_URL=https://htmkhefvctwmbrgeejkh.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA
 ```
 
 #### Ambiente de produção
 
 Configure as mesmas variáveis de ambiente na sua plataforma de hospedagem (Vercel, Netlify, etc.):
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_URL`: `https://htmkhefvctwmbrgeejkh.supabase.co`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA`
 
 ### 3. Verifique a configuração
 
@@ -60,20 +61,14 @@ Você pode usar as contas especiais para acessar o sistema mesmo quando há prob
 
 Estas contas funcionam mesmo quando o Supabase não está disponível ou não está configurado corretamente.
 
-## Verificação de Configuração
+## Configuração Atual
 
-Para verificar se o Supabase está configurado corretamente, execute:
-
-```bash
-npm run check-supabase
-```
-
-Este comando verificará se as variáveis de ambiente necessárias estão definidas e fornecerá instruções adicionais se necessário.
+O projeto foi configurado para usar as credenciais do Supabase diretamente no código, o que significa que o login deve funcionar mesmo sem configurar as variáveis de ambiente. No entanto, é uma boa prática configurar as variáveis de ambiente para maior segurança e flexibilidade.
 
 ## Suporte
 
 Se você continuar enfrentando problemas com a autenticação:
 
-1. Verifique se as variáveis de ambiente estão configuradas corretamente
+1. Verifique se as credenciais do Supabase estão corretas
 2. Use as contas especiais para acessar o sistema temporariamente
 3. Entre em contato com o suporte técnico fornecendo os logs de erro do console do navegador 
