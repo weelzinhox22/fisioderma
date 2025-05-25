@@ -14,7 +14,7 @@ import { Loader2, Mail, Lock, AlertCircle } from "lucide-react"
 import { FcGoogle } from "react-icons/fc"
 import { Separator } from "@/components/ui/separator"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import { createSupabaseClient, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/client"
+import { createSupabaseClient, SUPABASE_URL, SUPABASE_ANON_KEY, loginAndRedirect } from "@/lib/supabase/client"
 
 // Cores em tons bege/nude refinados
 const colors = {
@@ -85,72 +85,43 @@ export function LoginForm() {
           description: `Bem-vindo(a) ${isAdmin ? "Administrador" : "Professora Adriana"}!`,
         })
 
-        // Redirecionamento imediato com window.location para evitar problemas com o router do Next.js
-        window.location.href = isProfessor ? "/banco-questoes" : "/dashboard";
+        // Construir URL absoluta para o redirecionamento usando a página de redirecionamento
+        const baseUrl = window.location.origin;
+        const targetPath = isProfessor ? "/banco-questoes" : "/dashboard";
+        window.location.href = `${baseUrl}/auth-redirect?redirectTo=${encodeURIComponent(targetPath)}`;
         return
       }
 
-      // Criar cliente Supabase com credenciais fixas para garantir funcionamento
-      const authClient = createSupabaseClient()
-      
-      console.log("Cliente Supabase criado")
-      
+      // Usar a nova função de login e redirecionamento otimizada
       console.log("Tentando login com Supabase...")
-
-      try {
-        const { data, error } = await authClient.auth.signInWithPassword({
-          email,
-          password,
-        })
-
-        console.log("Resposta do Supabase:", { data, error })
-
-        if (error) {
-          // Traduzir mensagens de erro comuns
-          let mensagem = "Erro ao fazer login. Por favor, tente novamente."
-          
-          if (error.message.includes("Invalid login credentials")) {
-            mensagem = "Email ou senha incorretos"
-          } else if (error.message.includes("Email not confirmed")) {
-            mensagem = "Por favor, confirme seu email antes de fazer login"
-          } else if (error.message.includes("invalid api key")) {
-            mensagem = "Erro de configuração do Supabase. Por favor, contate o suporte."
-            console.error("Erro de API key do Supabase:", error)
-          } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-            mensagem = "Erro de conexão. Verifique sua internet e tente novamente, ou use uma conta especial."
-            setNetworkError(true)
-          }
-          
-          throw new Error(mensagem)
-        }
-
-        if (data?.user) {
-          console.log("Login bem-sucedido:", data.user)
-          
-          // Armazenar dados do usuário no localStorage para evitar múltiplas verificações
-          localStorage.setItem("userData", JSON.stringify({
-            id: data.user.id,
-            email: data.user.email,
-            role: "user"
-          }));
-          
-          toast({
-            title: "Login realizado com sucesso!",
-            description: "Você será redirecionado para o dashboard.",
-          })
-
-          // Usar window.location para forçar redirecionamento imediato e evitar problemas com o router
-          window.location.href = redirectTo;
-        } else {
-          console.warn("Login sem erro mas sem dados do usuário")
-          throw new Error("Erro inesperado ao fazer login")
-        }
-      } catch (fetchError) {
-        if (fetchError instanceof TypeError && fetchError.message.includes("Failed to fetch")) {
+      
+      const result = await loginAndRedirect(email, password, redirectTo || "/dashboard")
+      
+      if (!result.success) {
+        // Traduzir mensagens de erro comuns
+        let mensagem = "Erro ao fazer login. Por favor, tente novamente."
+        
+        const errorMessage = result.error?.message || ""
+        
+        if (errorMessage.includes("Invalid login credentials")) {
+          mensagem = "Email ou senha incorretos"
+        } else if (errorMessage.includes("Email not confirmed")) {
+          mensagem = "Por favor, confirme seu email antes de fazer login"
+        } else if (errorMessage.includes("invalid api key")) {
+          mensagem = "Erro de configuração do Supabase. Por favor, contate o suporte."
+          console.error("Erro de API key do Supabase:", result.error)
+        } else if (errorMessage.includes("Failed to fetch") || errorMessage.includes("NetworkError")) {
+          mensagem = "Erro de conexão. Verifique sua internet e tente novamente, ou use uma conta especial."
           setNetworkError(true)
-          throw new Error("Erro de conexão com o servidor. Por favor, verifique sua internet ou use uma conta especial para acessar.")
         }
-        throw fetchError
+        
+        throw new Error(mensagem)
+      } else {
+        // Login bem-sucedido, o redirecionamento será feito pela função loginAndRedirect
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Você será redirecionado para o dashboard.",
+        })
       }
     } catch (error: any) {
       console.error("Erro detalhado:", error)

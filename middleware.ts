@@ -26,8 +26,8 @@ export async function middleware(req: NextRequest) {
       return res
     }
     
-    // Verificar se já estamos na página de login
-    if (path === "/login") {
+    // Verificar se já estamos na página de login ou na página de redirecionamento
+    if (path === "/login" || path === "/auth-redirect") {
       return res
     }
     
@@ -74,5 +74,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/conteudos/:path*", "/provas/:path*", "/banco-questoes/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/conteudos/:path*", "/provas/:path*", "/banco-questoes/:path*", "/login", "/auth-redirect"],
 }
