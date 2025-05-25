@@ -94,34 +94,34 @@ export function LoginForm() {
 
       // Usar a nova função de login e redirecionamento otimizada
       console.log("Tentando login com Supabase...")
-      
+
       const result = await loginAndRedirect(email, password, redirectTo || "/dashboard")
-      
+
       if (!result.success) {
-        // Traduzir mensagens de erro comuns
-        let mensagem = "Erro ao fazer login. Por favor, tente novamente."
-        
+          // Traduzir mensagens de erro comuns
+          let mensagem = "Erro ao fazer login. Por favor, tente novamente."
+          
         const errorMessage = result.error?.message || ""
         
         if (errorMessage.includes("Invalid login credentials")) {
-          mensagem = "Email ou senha incorretos"
+            mensagem = "Email ou senha incorretos"
         } else if (errorMessage.includes("Email not confirmed")) {
-          mensagem = "Por favor, confirme seu email antes de fazer login"
+            mensagem = "Por favor, confirme seu email antes de fazer login"
         } else if (errorMessage.includes("invalid api key")) {
-          mensagem = "Erro de configuração do Supabase. Por favor, contate o suporte."
+            mensagem = "Erro de configuração do Supabase. Por favor, contate o suporte."
           console.error("Erro de API key do Supabase:", result.error)
         } else if (errorMessage.includes("Failed to fetch") || errorMessage.includes("NetworkError")) {
           mensagem = "Erro de conexão. Verifique sua internet e tente novamente, ou use uma conta especial."
           setNetworkError(true)
-        }
-        
-        throw new Error(mensagem)
+          }
+          
+          throw new Error(mensagem)
       } else {
         // Login bem-sucedido, o redirecionamento será feito pela função loginAndRedirect
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Você será redirecionado para o dashboard.",
-        })
+      toast({
+        title: "Login realizado com sucesso!",
+        description: "Você será redirecionado para o dashboard.",
+      })
       }
     } catch (error: any) {
       console.error("Erro detalhado:", error)

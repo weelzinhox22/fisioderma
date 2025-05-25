@@ -1,16 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useState, useRef } from 'react'
 import { 
   BookOpen, 
   FileText, 
   Search, 
   Play,
-  Download,
-  Bookmark,
   Zap,
   Snowflake,
   Waves,
@@ -21,11 +16,6 @@ import {
 } from 'lucide-react'
 import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar'
 import Link from 'next/link'
-
-// Registrando plugins do GSAP
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
 
 export default function ConteudosPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -64,7 +54,8 @@ export default function ConteudosPage() {
       duration: "12 min de leitura",
       date: "28/11/2023",
       author: "Dra. Ana Silva",
-      featured: true
+      featured: true,
+      link: "/conteudos/radiofrequencia"
     },
     { 
       id: "2", 
@@ -78,7 +69,8 @@ export default function ConteudosPage() {
       duration: "18 min",
       date: "02/12/2023", 
       author: "Dr. Carlos Mendes",
-      featured: false
+      featured: false,
+      link: "/conteudos/radiofrequencia"
     },
     { 
       id: "3", 
@@ -167,7 +159,8 @@ export default function ConteudosPage() {
       duration: "20 min de leitura",
       date: "10/11/2023", 
       author: "Dra. Mariana Oliveira",
-      featured: true
+      featured: true,
+      link: "/conteudos/queimados"
     },
     { 
       id: "9", 
@@ -215,317 +208,188 @@ export default function ConteudosPage() {
   
   // Conteúdos em destaque
   const featuredContent = contentItems.filter(item => item.featured);
-  
-  // Efeito para animações GSAP
-  useEffect(() => {
-    if (pageRef.current) {
-      // Animação do título e descrição
-      gsap.fromTo(
-        ".content-header", 
-        { opacity: 0, y: -20 }, 
-        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
-      );
-      
-      // Animação das categorias
-      gsap.fromTo(
-        ".category-item", 
-        { opacity: 0, y: 10 }, 
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: 0.5, 
-          stagger: 0.08, 
-          ease: "power2.out",
-          delay: 0.2
-        }
-      );
-      
-      // Animação dos cards em destaque
-      gsap.fromTo(
-        ".featured-card", 
-        { opacity: 0, y: 30 }, 
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: 0.7, 
-          stagger: 0.1, 
-          ease: "power2.out",
-          delay: 0.4
-        }
-      );
-      
-      // Animação da lista de conteúdos
-      gsap.fromTo(
-        ".content-item", 
-        { opacity: 0, x: -20 }, 
-        { 
-          opacity: 1, 
-          x: 0, 
-          duration: 0.5, 
-          stagger: 0.08, 
-          ease: "power2.out",
-          delay: 0.6
-        }
-      );
-    }
-    
-    return () => {
-      // Limpar animações ao desmontar
-      ScrollTrigger.getAll().forEach(t => t.kill());
-      gsap.killTweensOf(".content-header");
-      gsap.killTweensOf(".category-item");
-      gsap.killTweensOf(".featured-card");
-      gsap.killTweensOf(".content-item");
-    };
-  }, [searchQuery, selectedCategory]);
 
   return (
-    <div className="flex min-h-screen bg-gray-50" ref={pageRef}>
+    <div className="flex min-h-screen bg-gradient-to-b from-[#F7F2EB]/50 to-white">
       <DashboardSidebar />
       
-      <div className="flex-1 p-8 pt-16 pb-16 overflow-auto">
+      <div className="flex-1 p-4 sm:p-6 pt-16 pb-16 overflow-auto w-full mt-6 sm:mt-10" ref={pageRef}>
         <div className="max-w-6xl mx-auto">
-          {/* Cabeçalho da página */}
-          <div className="content-header mb-12">
-            <div className="flex items-center">
-              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-[#B38E6A] mr-4">
-                <span className="font-medium text-lg text-white">F</span>
+          {/* Header da página */}
+          <div className="content-header mb-6 sm:mb-10">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-medium text-[#8A6D50] tracking-wide mb-2 sm:mb-3">
+              Conteúdos Disponíveis
+            </h1>
+            <p className="text-sm sm:text-base text-neutral-500 max-w-3xl">
+              Explore nossa biblioteca de conteúdos sobre Fisioterapia Dermatofuncional, com artigos, 
+              vídeos e documentos para aprimorar seus conhecimentos.
+            </p>
+          </div>
+          
+          {/* Barra de pesquisa e categorias */}
+          <div className="mb-6 sm:mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="relative w-full sm:w-auto">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-neutral-400" />
               </div>
-              <h1 className="text-4xl font-light text-[#B38E6A] tracking-wide">
-                FisioDerma
-              </h1>
-            </div>
-            <p className="text-neutral-500 mt-2 ml-16 text-sm">Plataforma de Fisioterapia Dermatofuncional</p>
-          </div>
-          
-          {/* Título da seção */}
-          <div className="content-header flex items-center gap-3 mb-8">
-            <div className="h-8 w-1 bg-[#B38E6A] rounded-full"></div>
-            <h2 className="text-2xl font-light text-neutral-700 tracking-wide">Conteúdos</h2>
-          </div>
-          
-          {/* Barra de pesquisa */}
-          <div className="content-header mb-8">
-            <div className="relative max-w-md">
               <input
                 type="text"
                 placeholder="Pesquisar conteúdos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 pl-10 rounded-md border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-[#B38E6A] focus:border-transparent transition-all duration-200"
+                className="py-2 pl-9 pr-4 w-full sm:w-64 md:w-80 border border-neutral-200 rounded-lg focus:outline-none focus:border-[#B38E6A] text-sm sm:text-base"
               />
-              <Search className="absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
             </div>
-          </div>
-          
-          {/* Filtro por categorias */}
-          <div className="mb-10">
-            <div className="flex flex-wrap gap-3">
-              {categories.map((category, index) => (
-                <motion.button
+            
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              {categories.map((category) => (
+                <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`category-item px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
-                    selectedCategory === category.id 
-                      ? 'bg-[#B38E6A] text-white shadow-md' 
-                      : 'bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                  className={`category-item px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1.5 transition-all ${
+                    selectedCategory === category.id
+                      ? "bg-[#B38E6A] text-white"
+                      : "bg-[#F7F2EB] text-neutral-600 hover:bg-[#D9C5B2]/30"
                   }`}
-                  whileHover={{ y: -2, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
-                  whileTap={{ y: 0 }}
                 >
-                  {category.icon && <category.icon className="h-4 w-4" />}
-                  <span>{category.label}</span>
-                </motion.button>
+                  {category.icon && <category.icon className="h-3.5 w-3.5" />}
+                  {category.label}
+                </button>
               ))}
             </div>
           </div>
           
           {/* Conteúdos em destaque */}
-          {searchQuery === "" && selectedCategory === "todos" && (
-            <div className="mb-12">
-              <h3 className="content-header text-xl font-light mb-5 text-neutral-700 tracking-wide flex items-center">
-                <Bookmark className="h-5 w-5 mr-2 text-[#B38E6A]" />
-                Destaques
-              </h3>
+          {selectedCategory === "todos" && (
+            <div className="mb-8 sm:mb-12">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="h-8 sm:h-10 w-1.5 bg-[#B38E6A] rounded-full"></div>
+                <h2 className="text-xl sm:text-2xl font-medium text-[#8A6D50] tracking-wide">Em Destaque</h2>
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {featuredContent.slice(0, 3).map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    className="featured-card bg-white border border-neutral-100 p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
-                    whileHover={{ 
-                      y: -5, 
-                      boxShadow: "0 10px 25px rgba(179, 142, 106, 0.1)",
-                      borderColor: item.color, 
-                      borderLeftWidth: "4px"
-                    }}
-                    onClick={() => item.link ? null : setSelectedContent(item)}
-                  >
-                    {item.link ? (
-                      <Link href={item.link} className="block">
-                        <div className="flex items-center mb-4">
-                          <div 
-                            className="p-2.5 rounded-md mr-3"
-                            style={{ backgroundColor: `${item.color}20` }}
-                          >
-                            <item.icon className="h-5 w-5" style={{ color: item.color }} />
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium" style={{ color: item.color }}>
+                  <Link href={item.link || "#"} key={item.id} className="block h-full">
+                    <div
+                      className="featured-card group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 h-full border border-neutral-100 overflow-hidden flex flex-col"
+                    >
+                      <div 
+                        className="h-3 w-full" 
+                        style={{ backgroundColor: item.color }}
+                      ></div>
+                      
+                      <div className="p-4 sm:p-6 flex-1 flex flex-col">
+                        <div className="flex items-center justify-between mb-3 sm:mb-4">
+                          <div className="flex items-center">
+                            <div className="p-1.5 sm:p-2 rounded-full mr-3" style={{ backgroundColor: `${item.color}15` }}>
+                              <item.icon className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: item.color }} />
+                            </div>
+                            <span className="text-xs sm:text-sm font-medium" style={{ color: item.color }}>
                               {item.category}
                             </span>
                           </div>
-                        </div>
-                        
-                        <h3 className="text-lg font-medium text-neutral-800 mb-2 line-clamp-2">{item.title}</h3>
-                        <p className="text-sm text-neutral-500 mb-4 line-clamp-2">{item.description}</p>
-                        
-                        <div className="flex items-center justify-between text-xs text-neutral-400">
-                          <div className="flex items-center">
-                            {item.type === "pdf" && <FileText className="h-3.5 w-3.5 mr-1" />}
-                            {item.type === "video" && <Play className="h-3.5 w-3.5 mr-1" />}
-                            {item.type === "artigo" && <BookOpen className="h-3.5 w-3.5 mr-1" />}
-                            <span>{item.duration}</span>
-                          </div>
-                          <span>{item.date}</span>
-                        </div>
-                      </Link>
-                    ) : (
-                      <>
-                        <div className="flex items-center mb-4">
-                          <div 
-                            className="p-2.5 rounded-md mr-3"
-                            style={{ backgroundColor: `${item.color}20` }}
-                          >
-                            <item.icon className="h-5 w-5" style={{ color: item.color }} />
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium" style={{ color: item.color }}>
-                              {item.category}
-                            </span>
+                          
+                          <div className="flex items-center gap-1">
+                            {item.type === "pdf" && <FileText className="h-3.5 w-3.5 text-neutral-400" />}
+                            {item.type === "video" && <Play className="h-3.5 w-3.5 text-neutral-400" />}
+                            {item.type === "artigo" && <BookOpen className="h-3.5 w-3.5 text-neutral-400" />}
+                            <span className="text-xs text-neutral-400">{item.type.toUpperCase()}</span>
                           </div>
                         </div>
                         
-                        <h3 className="text-lg font-medium text-neutral-800 mb-2 line-clamp-2">{item.title}</h3>
-                        <p className="text-sm text-neutral-500 mb-4 line-clamp-2">{item.description}</p>
+                        <h3 className="text-base sm:text-lg font-medium text-neutral-800 mb-1 group-hover:text-[#B38E6A] transition-colors">
+                          {item.title}
+                        </h3>
                         
-                        <div className="flex items-center justify-between text-xs text-neutral-400">
-                          <div className="flex items-center">
-                            {item.type === "pdf" && <FileText className="h-3.5 w-3.5 mr-1" />}
-                            {item.type === "video" && <Play className="h-3.5 w-3.5 mr-1" />}
-                            {item.type === "artigo" && <BookOpen className="h-3.5 w-3.5 mr-1" />}
-                            <span>{item.duration}</span>
+                        <p className="text-xs sm:text-sm text-neutral-500 mb-3 sm:mb-4 line-clamp-2">
+                          {item.description}
+                        </p>
+                        
+                        <div className="mt-auto pt-3 border-t border-neutral-100 flex items-center justify-between">
+                          <span className="text-xs text-neutral-500">{item.duration}</span>
+                          <div className="flex items-center text-[#B38E6A] text-xs sm:text-sm font-medium group-hover:translate-x-0.5 transition-transform">
+                            <span>Ver mais</span>
+                            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 ml-1" />
                           </div>
-                          <span>{item.date}</span>
                         </div>
-                      </>
-                    )}
-                  </motion.div>
+                      </div>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
           )}
           
-          {/* Lista de conteúdos */}
+          {/* Lista completa de conteúdos */}
           <div>
-            <h3 className="content-header text-xl font-light mb-5 text-neutral-700 tracking-wide flex items-center">
-              <BookOpen className="h-5 w-5 mr-2 text-[#B38E6A]" />
-              {filteredContent.length === 0 
-                ? "Nenhum resultado encontrado" 
-                : `${filteredContent.length} ${filteredContent.length === 1 ? 'resultado' : 'resultados'}`}
-            </h3>
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <div className="h-8 sm:h-10 w-1.5 bg-[#B38E6A] rounded-full"></div>
+              <h2 className="text-xl sm:text-2xl font-medium text-[#8A6D50] tracking-wide">
+                {selectedCategory === "todos" ? "Todos os Conteúdos" : "Conteúdos Filtrados"}
+              </h2>
+            </div>
             
-            <div className="space-y-3">
-              {filteredContent.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  className="content-item bg-white border border-neutral-100 p-5 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
-                  whileHover={{ 
-                    backgroundColor: `${item.color}05`,
-                    borderColor: item.color,
-                    x: 3
-                  }}
-                  onClick={() => item.link ? null : setSelectedContent(item)}
-                >
-                  {item.link ? (
-                    <Link href={item.link} className="block">
-                      <div className="flex items-start md:items-center">
-                        <div 
-                          className="p-2.5 rounded-md mr-4 hidden md:flex"
-                          style={{ backgroundColor: `${item.color}15` }}
-                        >
-                          <item.icon className="h-5 w-5" style={{ color: item.color }} />
-                        </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center mb-1">
-                            <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ 
-                              backgroundColor: `${item.color}15`,
-                              color: item.color
-                            }}>
+            {filteredContent.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                {filteredContent.map((item, index) => (
+                  <Link href={item.link || "#"} key={item.id} className="block h-full">
+                    <div
+                      className="content-card group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 h-full border border-neutral-100 overflow-hidden flex"
+                    >
+                      <div 
+                        className="w-2 h-full flex-shrink-0" 
+                        style={{ backgroundColor: item.color }}
+                      ></div>
+                      
+                      <div className="p-4 sm:p-5 flex-1">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center">
+                            <div className="p-1.5 rounded-full mr-2" style={{ backgroundColor: `${item.color}15` }}>
+                              <item.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: item.color }} />
+                            </div>
+                            <span className="text-xs font-medium" style={{ color: item.color }}>
                               {item.category}
                             </span>
-                            <span className="text-xs text-neutral-400 ml-3">{item.type.toUpperCase()}</span>
                           </div>
                           
-                          <h3 className="text-base font-medium text-neutral-800">{item.title}</h3>
-                          <p className="text-sm text-neutral-500 mt-1 hidden md:block">{item.subtitle}</p>
-                          
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs text-neutral-400">{item.author}</span>
-                            <span className="text-xs text-neutral-400">{item.date}</span>
+                          <div className="flex items-center gap-1">
+                            {item.type === "pdf" && <FileText className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-neutral-400" />}
+                            {item.type === "video" && <Play className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-neutral-400" />}
+                            {item.type === "artigo" && <BookOpen className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-neutral-400" />}
+                            <span className="text-xs text-neutral-400">{item.type.toUpperCase()}</span>
                           </div>
                         </div>
                         
-                        <motion.div
-                          className="ml-4"
-                          whileHover={{ x: 3 }}
-                        >
-                          <ChevronRight className="h-5 w-5 text-neutral-300" />
-                        </motion.div>
-                      </div>
-                    </Link>
-                  ) : (
-                    <div className="flex items-start md:items-center">
-                      <div 
-                        className="p-2.5 rounded-md mr-4 hidden md:flex"
-                        style={{ backgroundColor: `${item.color}15` }}
-                      >
-                        <item.icon className="h-5 w-5" style={{ color: item.color }} />
-                      </div>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-center mb-1">
-                          <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ 
-                            backgroundColor: `${item.color}15`,
-                            color: item.color
-                          }}>
-                            {item.category}
-                          </span>
-                          <span className="text-xs text-neutral-400 ml-3">{item.type.toUpperCase()}</span>
-                        </div>
+                        <h3 className="text-sm sm:text-base font-medium text-neutral-800 mb-1 group-hover:text-[#B38E6A] transition-colors">
+                          {item.title}
+                        </h3>
                         
-                        <h3 className="text-base font-medium text-neutral-800">{item.title}</h3>
-                        <p className="text-sm text-neutral-500 mt-1 hidden md:block">{item.subtitle}</p>
+                        {item.subtitle && (
+                          <p className="text-xs text-neutral-600 mb-2">{item.subtitle}</p>
+                        )}
                         
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-neutral-400">{item.author}</span>
-                          <span className="text-xs text-neutral-400">{item.date}</span>
+                        <p className="text-xs text-neutral-500 mb-3 line-clamp-2">
+                          {item.description}
+                        </p>
+                        
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-neutral-500">{item.duration}</span>
+                          <div className="flex items-center text-[#B38E6A] font-medium group-hover:translate-x-0.5 transition-transform">
+                            <span>Acessar</span>
+                            <ChevronRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 ml-1" />
+                          </div>
                         </div>
                       </div>
-                      
-                      <motion.div
-                        className="ml-4"
-                        whileHover={{ x: 3 }}
-                      >
-                        <ChevronRight className="h-5 w-5 text-neutral-300" />
-                      </motion.div>
                     </div>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-        </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white border border-neutral-100 rounded-lg p-8 text-center">
+                <p className="text-neutral-500">Nenhum conteúdo encontrado com os filtros atuais.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

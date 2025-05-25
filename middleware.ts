@@ -17,7 +17,7 @@ export async function middleware(req: NextRequest) {
   
   // Permitir acesso a outras rotas
   return NextResponse.next()
-}
+  }
 
 // Manter o matcher para que o middleware seja executado nas rotas protegidas
 export const config = {

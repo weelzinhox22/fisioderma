@@ -52,7 +52,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
             localStorage.removeItem("specialUser")
           }
         }
-        
+
         // Verificar se já temos dados do usuário no localStorage
         const userDataStr = localStorage.getItem("userData")
         if (userDataStr) {
@@ -76,18 +76,18 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
         console.log("Cliente Supabase criado com sucesso")
         setSupabase(supabaseClient)
 
-        // Verificar sessão atual
+          // Verificar sessão atual
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession()
-        
-        if (sessionError) {
-          console.error("Erro ao obter sessão:", sessionError)
-          throw sessionError
-        }
+          
+          if (sessionError) {
+            console.error("Erro ao obter sessão:", sessionError)
+            throw sessionError
+          }
 
-        console.log("Sessão obtida:", !!session)
-        setUser(session?.user ?? null)
+          console.log("Sessão obtida:", !!session)
+          setUser(session?.user ?? null)
 
-        if (session?.user) {
+          if (session?.user) {
           // Definir role padrão para evitar consultas que estão falhando
           setUserRole("user")
           
@@ -111,19 +111,19 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
             console.log("Processando mudança de estado de autenticação:", event)
             
             try {
-              setUser(session?.user ?? null)
-              
+            setUser(session?.user ?? null)
+
               // Definir role padrão quando o usuário estiver autenticado
-              if (session?.user) {
+            if (session?.user) {
                 setUserRole("user")
-              } else {
-                setUserRole(null)
-              }
+                } else {
+              setUserRole(null)
+            }
             } finally {
               isProcessingAuth.current = false
             }
           })
-          
+
           return () => {
             subscription.unsubscribe()
           }

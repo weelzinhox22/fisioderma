@@ -50,6 +50,11 @@ export function DashboardSidebar() {
       icon: GraduationCap 
     },
     { 
+      href: '/dashboard/conteudos', 
+      label: 'Conteúdos',
+      icon: BookOpen 
+    },
+    { 
       href: '/banco-questoes-login', 
       label: 'Banco de Questões',
       icon: FileText 
@@ -215,72 +220,6 @@ export function DashboardSidebar() {
                   </Link>
                 );
               })}
-
-              {/* Menu dropdown de conteúdos */}
-              <div className="relative" ref={contentMenuRef}>
-                <button
-                  onClick={() => setContentMenuOpen(!contentMenuOpen)}
-                  className={`relative px-5 py-3 rounded-md text-base font-medium transition-all duration-200 hover:bg-[#F7F2EB]/70 ${
-                    isContentActive() 
-                      ? "text-[#8A6D50]" 
-                      : "text-neutral-500 hover:text-[#B38E6A]"
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <BookOpen size={18} className={isContentActive() ? "text-[#B38E6A]" : ""} />
-                    <span>Conteúdos</span>
-                    <ChevronDown 
-                      size={14} 
-                      className={`transition-transform duration-200 ${contentMenuOpen ? 'rotate-180' : ''} ${isContentActive() ? "text-[#B38E6A]" : ""}`} 
-                    />
-                  </div>
-                  
-                  {/* Indicador de ativo */}
-                  {isContentActive() && (
-                    <motion.div 
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B38E6A] rounded-full"
-                      layoutId="activeIndicator"
-                      transition={{ type: "spring", duration: 0.5 }}
-                    />
-                  )}
-                </button>
-                
-                {/* Dropdown de conteúdos */}
-                <AnimatePresence>
-                  {contentMenuOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute left-0 mt-2 w-60 bg-white rounded-lg shadow-lg py-2 border border-[#D9C5B2]/50 z-50"
-                    >
-                      {contentItems.map((item) => {
-                        const active = isActive(item.href);
-                        
-                        return (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`flex items-center px-5 py-2.5 text-base hover:bg-[#F7F2EB]/50 transition-colors ${
-                              active 
-                                ? "bg-[#F7F2EB] text-[#8A6D50] border-l-2 border-[#B38E6A]" 
-                                : "text-neutral-600 hover:text-[#B38E6A]"
-                            }`}
-                          >
-                            <item.icon 
-                              size={18} 
-                              className="mr-3" 
-                              style={{ color: active ? "#B38E6A" : item.color }} 
-                            />
-                            {item.label}
-                          </Link>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
             </div>
             
             {/* Menu do usuário e botão de menu móvel */}
@@ -303,7 +242,7 @@ export function DashboardSidebar() {
           </div>
         </div>
         
-        {/* Menu móvel */}
+        {/* Menu móvel - Redesenhado para melhor experiência em dispositivos móveis */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div 
@@ -314,6 +253,7 @@ export function DashboardSidebar() {
               transition={{ duration: 0.2 }}
             >
               <div className="px-3 pt-3 pb-6 space-y-3 sm:px-4 border-t border-[#D9C5B2]/30 bg-[#F7F2EB]/40">
+                {/* Itens de navegação principais */}
                 {navItems.map((item) => {
                   const active = isActive(item.href);
                   
@@ -328,35 +268,6 @@ export function DashboardSidebar() {
                       }`}
                     >
                       <item.icon size={22} className="mr-3" />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-                
-                {/* Cabeçalho da seção de conteúdos no móvel */}
-                <div className="pt-4 pb-2">
-                  <p className="px-4 text-sm font-medium text-neutral-500 uppercase tracking-wider">Conteúdos</p>
-                </div>
-                
-                {/* Lista de conteúdos no móvel */}
-                {contentItems.map((item) => {
-                  const active = isActive(item.href);
-                  
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center px-4 py-4 rounded-md text-base font-medium ${
-                        active 
-                          ? "bg-[#F7F2EB] text-[#8A6D50] border-l-4 border-[#B38E6A]" 
-                          : "text-neutral-600 hover:bg-[#F7F2EB]/50 hover:text-[#B38E6A]"
-                      }`}
-                    >
-                      <item.icon 
-                        size={22} 
-                        className="mr-3" 
-                        style={{ color: active ? "#B38E6A" : item.color }} 
-                      />
                       {item.label}
                     </Link>
                   );
