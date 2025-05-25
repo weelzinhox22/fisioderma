@@ -26,9 +26,12 @@ export async function middleware(req: NextRequest) {
       return res
     }
     
+    // Verificar se já estamos na página de login
+    if (path === "/login") {
+      return res
+    }
+    
     // Criar cliente Supabase
-    // Nota: O middleware client não aceita supabaseUrl e supabaseKey diretamente
-    // Ele usa as variáveis de ambiente automaticamente
     const supabase = createMiddlewareClient({ req, res })
     
     // Verificar sessão
@@ -63,7 +66,6 @@ export async function middleware(req: NextRequest) {
       // Se for uma rota protegida e houve erro, redirecionar para login
       const redirectUrl = new URL("/login", req.url)
       redirectUrl.searchParams.set("redirectTo", path)
-      // Removido o parâmetro error=connection para evitar falsos positivos
       return NextResponse.redirect(redirectUrl)
     }
     
@@ -72,5 +74,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/conteudos/:path*", "/provas/:path*", "/banco-questoes/:path*"],
+  matcher: ["/dashboard/:path*", "/conteudos/:path*", "/provas/:path*", "/banco-questoes/:path*", "/login"],
 }

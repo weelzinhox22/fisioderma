@@ -85,7 +85,8 @@ export function LoginForm() {
           description: `Bem-vindo(a) ${isAdmin ? "Administrador" : "Professora Adriana"}!`,
         })
 
-        router.push(isProfessor ? "/banco-questoes" : "/dashboard")
+        // Redirecionamento imediato com window.location para evitar problemas com o router do Next.js
+        window.location.href = isProfessor ? "/banco-questoes" : "/dashboard";
         return
       }
 
@@ -125,14 +126,21 @@ export function LoginForm() {
 
         if (data?.user) {
           console.log("Login bem-sucedido:", data.user)
+          
+          // Armazenar dados do usuário no localStorage para evitar múltiplas verificações
+          localStorage.setItem("userData", JSON.stringify({
+            id: data.user.id,
+            email: data.user.email,
+            role: "user"
+          }));
+          
           toast({
             title: "Login realizado com sucesso!",
             description: "Você será redirecionado para o dashboard.",
           })
 
-          // Forçar redirecionamento imediato
-          router.push(redirectTo)
-          router.refresh()
+          // Usar window.location para forçar redirecionamento imediato e evitar problemas com o router
+          window.location.href = redirectTo;
         } else {
           console.warn("Login sem erro mas sem dados do usuário")
           throw new Error("Erro inesperado ao fazer login")

@@ -49,7 +49,7 @@ Execute os comandos para verificar se as variáveis de ambiente estão configura
 
 ```bash
 npm run check-supabase
-node scripts/check-supabase-connectivity.js
+npm run check-connectivity
 ```
 
 ## Correções Implementadas
@@ -69,6 +69,16 @@ O erro `useSearchParams() should be wrapped in a suspense boundary at page "/log
 ### 4. Endpoint de Health Check
 
 Adicionamos um endpoint `/api/health-check` para verificar a conectividade com o servidor antes de mostrar mensagens de erro de conexão.
+
+### 5. Otimizações de Performance no Login
+
+Para resolver o problema de lentidão no login e múltiplas alterações de estado de autenticação, implementamos as seguintes otimizações:
+
+- **Redirecionamento direto**: Substituímos o uso do router do Next.js por `window.location.href` para garantir um redirecionamento mais rápido após o login.
+- **Cache de dados do usuário**: Armazenamos os dados do usuário no localStorage para evitar múltiplas verificações.
+- **Debounce de eventos de autenticação**: Implementamos um mecanismo de debounce para ignorar eventos de autenticação muito frequentes.
+- **Prevenção de processamento simultâneo**: Adicionamos controles para evitar o processamento simultâneo de múltiplos eventos de autenticação.
+- **Otimização do middleware**: Melhoramos o middleware para evitar redirecionamentos desnecessários.
 
 ## Solução de Problemas
 
@@ -97,6 +107,6 @@ Estas contas funcionam mesmo quando o Supabase não está disponível ou não es
 
 Se você continuar enfrentando problemas com a autenticação:
 
-1. Execute o script de verificação de conectividade: `node scripts/check-supabase-connectivity.js`
+1. Execute o script de verificação de conectividade: `npm run check-connectivity`
 2. Use as contas especiais para acessar o sistema temporariamente
 3. Entre em contato com o suporte técnico fornecendo os logs de erro do console do navegador 

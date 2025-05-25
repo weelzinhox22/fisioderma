@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, useRef } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { SupabaseClient, User } from "@supabase/auth-helpers-nextjs"
 import { useRouter } from "next/navigation"
@@ -25,6 +25,11 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const router = useRouter()
+  
+  // Usar um ref para controlar se já estamos processando uma mudança de autenticação
+  const isProcessingAuth = useRef(false)
+  // Usar um ref para armazenar a última vez que processamos uma mudança de autenticação
+  const lastAuthChange = useRef(0)
 
   useEffect(() => {
     const initializeSupabase = async () => {
@@ -45,6 +50,22 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
           } catch (e) {
             console.warn("Erro ao processar usuário especial:", e)
             localStorage.removeItem("specialUser")
+          }
+        }
+        
+        // Verificar se já temos dados do usuário no localStorage
+        const userDataStr = localStorage.getItem("userData")
+        if (userDataStr) {
+          try {
+            const userData = JSON.parse(userDataStr)
+            if (userData && userData.email) {
+              console.log("Dados do usuário encontrados no localStorage")
+              setUserRole(userData.role || "user")
+              setLoading(false)
+            }
+          } catch (e) {
+            console.warn("Erro ao processar dados do usuário:", e)
+            localStorage.removeItem("userData")
           }
         }
         
@@ -70,19 +91,37 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
           // Definir role padrão para evitar consultas que estão falhando
           setUserRole("user")
           
-          // Configurar listener de mudança de autenticação
+          // Configurar listener de mudança de autenticação com debounce
           const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            console.log("Mudança de estado de autenticação:", event)
-            setUser(session?.user ?? null)
+            // Ignorar eventos muito frequentes (debounce de 1 segundo)
+            const now = Date.now()
+            if (now - lastAuthChange.current < 1000) {
+              console.log("Ignorando mudança de estado de autenticação (muito frequente):", event)
+              return
+            }
+            lastAuthChange.current = now
             
-            // Definir role padrão quando o usuário estiver autenticado
-            if (session?.user) {
-              setUserRole("user")
-            } else {
-              setUserRole(null)
+            // Evitar processamento simultâneo de múltiplos eventos
+            if (isProcessingAuth.current) {
+              console.log("Já processando uma mudança de autenticação, ignorando:", event)
+              return
             }
             
-            router.refresh()
+            isProcessingAuth.current = true
+            console.log("Processando mudança de estado de autenticação:", event)
+            
+            try {
+              setUser(session?.user ?? null)
+              
+              // Definir role padrão quando o usuário estiver autenticado
+              if (session?.user) {
+                setUserRole("user")
+              } else {
+                setUserRole(null)
+              }
+            } finally {
+              isProcessingAuth.current = false
+            }
           })
           
           return () => {
