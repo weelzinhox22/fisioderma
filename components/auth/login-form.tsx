@@ -14,10 +14,7 @@ import { Loader2, Mail, Lock, AlertCircle } from "lucide-react"
 import { FcGoogle } from "react-icons/fc"
 import { Separator } from "@/components/ui/separator"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-
-// Constantes do Supabase - definidas explicitamente para garantir funcionamento
-const SUPABASE_URL = "https://htmkhefvctwmbrgeejkh.supabase.co"
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA"
+import { createSupabaseClient, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/client"
 
 // Cores em tons bege/nude refinados
 const colors = {
@@ -50,34 +47,6 @@ export function LoginForm() {
       setConfigError(msg)
       console.error(msg)
     }
-    
-    // Verificar conectividade com o Supabase
-    const checkConnection = async () => {
-      try {
-        const start = Date.now()
-        
-        // Criar cliente direto com as credenciais fixas para o teste
-        const testClient = createClientComponentClient({
-          supabaseUrl: SUPABASE_URL,
-          supabaseKey: SUPABASE_ANON_KEY,
-        })
-        
-        const { error } = await testClient.auth.getSession()
-        const elapsed = Date.now() - start
-        
-        if (error || elapsed > 5000) {
-          console.warn("Problemas de conectividade com Supabase:", { error, elapsed })
-          setNetworkError(true)
-        } else {
-          setNetworkError(false)
-        }
-      } catch (e) {
-        console.error("Erro ao verificar conexão:", e)
-        setNetworkError(true)
-      }
-    }
-    
-    checkConnection()
   }, [supabase, errorMessage])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -121,18 +90,10 @@ export function LoginForm() {
       }
 
       // Criar cliente Supabase com credenciais fixas para garantir funcionamento
-      const authClient = createClientComponentClient({
-        supabaseUrl: SUPABASE_URL,
-        supabaseKey: SUPABASE_ANON_KEY,
-      })
+      const authClient = createSupabaseClient()
       
       console.log("Cliente Supabase criado")
       
-      // Verificar conectividade antes de tentar login
-      if (networkError) {
-        throw new Error("Erro de conexão com o servidor. Por favor, verifique sua internet ou use uma conta especial para acessar.")
-      }
-
       console.log("Tentando login com Supabase...")
 
       try {

@@ -6,10 +6,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { SupabaseClient, User } from "@supabase/auth-helpers-nextjs"
 import { useRouter } from "next/navigation"
-
-// Constantes do Supabase - definidas explicitamente para garantir funcionamento
-const SUPABASE_URL = "https://htmkhefvctwmbrgeejkh.supabase.co"
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA"
+import { createSupabaseClient, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/client"
 
 type SupabaseContext = {
   supabase: SupabaseClient | null
@@ -53,10 +50,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
         
         // Criar cliente Supabase com credenciais fixas para garantir funcionamento
         console.log("Criando cliente Supabase...")
-        const supabaseClient = createClientComponentClient({
-          supabaseUrl: SUPABASE_URL,
-          supabaseKey: SUPABASE_ANON_KEY,
-        })
+        const supabaseClient = createSupabaseClient()
         
         console.log("Cliente Supabase criado com sucesso")
         setSupabase(supabaseClient)

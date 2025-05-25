@@ -36,8 +36,24 @@ function ConnectionErrorMessage() {
   useEffect(() => {
     // Verificar se há erro de conexão na URL
     const error = searchParams.get("error")
+    
+    // Removido temporariamente para evitar falsos positivos
+    // if (error === "connection") {
+    //   setConnectionError(true)
+    // }
+    
+    // Agora só mostramos o erro se explicitamente solicitado e após verificação
     if (error === "connection") {
-      setConnectionError(true)
+      // Verificar se realmente há um problema de conexão
+      fetch('/api/health-check')
+        .then(response => {
+          // Se conseguir conectar, não mostrar erro
+          setConnectionError(false)
+        })
+        .catch(err => {
+          // Só mostrar erro se realmente não conseguir conectar
+          setConnectionError(true)
+        })
     }
   }, [searchParams])
 

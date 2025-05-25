@@ -1,10 +1,7 @@
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-
-// Constantes do Supabase - definidas explicitamente para garantir funcionamento
-const SUPABASE_URL = "https://htmkhefvctwmbrgeejkh.supabase.co"
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA"
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/client"
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
@@ -66,7 +63,7 @@ export async function middleware(req: NextRequest) {
       // Se for uma rota protegida e houve erro, redirecionar para login
       const redirectUrl = new URL("/login", req.url)
       redirectUrl.searchParams.set("redirectTo", path)
-      redirectUrl.searchParams.set("error", "connection")
+      // Removido o parâmetro error=connection para evitar falsos positivos
       return NextResponse.redirect(redirectUrl)
     }
     
