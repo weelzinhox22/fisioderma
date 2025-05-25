@@ -1,18 +1,14 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { 
   Home, 
   FileText, 
-  User, 
-  Settings,
-  LogOut,
-  Menu,
+  Menu as MenuIcon,
   X,
-  ChevronDown,
   GraduationCap,
   BookOpen,
   Snowflake,
@@ -23,7 +19,6 @@ import {
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useSupabase } from '@/lib/supabase/provider'
-import { useClickAway } from 'react-use'
 
 export function DashboardSidebar() {
   const pathname = usePathname()
@@ -32,11 +27,7 @@ export function DashboardSidebar() {
   const { supabase } = useSupabase()
   const [mounted, setMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const [contentMenuOpen, setContentMenuOpen] = useState(false)
-  const userMenuRef = useRef(null)
-  const contentMenuRef = useRef(null)
-  
+
   // Links da navegação
   const navItems = [
     { 
@@ -47,96 +38,33 @@ export function DashboardSidebar() {
     { 
       href: '/dashboard/provas/exame', 
       label: 'Avaliação',
-      icon: GraduationCap 
+      icon: GraduationCap
     },
-    { 
+    {
       href: '/dashboard/conteudos', 
       label: 'Conteúdos',
       icon: BookOpen 
     },
     { 
-      href: '/banco-questoes-login', 
+      href: '/banco-questoes-login',
       label: 'Banco de Questões',
-      icon: FileText 
+      icon: FileText
     }
   ]
-
-  // Conteúdos disponíveis
-  const contentItems = [
-    {
-      href: '/conteudos/criolise',
-      label: 'Criolipólise',
-      icon: Snowflake,
-      color: "#64B5F6"
-    },
-    {
-      href: '/conteudos/lipocavitacao',
-      label: 'Lipocavitação',
-      icon: Waves,
-      color: "#81C784"
-    },
-    {
-      href: '/conteudos/queimados',
-      label: 'Queimados',
-      icon: Flame,
-      color: "#F06292"
-    },
-    {
-      href: '/conteudos/radiofrequencia',
-      label: 'Radiofrequência',
-      icon: Zap,
-      color: "#E57373"
-    },
-    {
-      href: '/conteudos/ultrassom',
-      label: 'Ultrassom',
-      icon: Speaker,
-      color: "#FFB74D"
-    }
-  ]
-
-  // Itens do menu do usuário
-  const userMenuItems = []
-  
-  // Fechar menus ao clicar fora
-  useClickAway(userMenuRef, () => {
-    setUserMenuOpen(false)
-  })
-
-  useClickAway(contentMenuRef, () => {
-    setContentMenuOpen(false)
-  })
 
   useEffect(() => {
     setMounted(true)
-    
+
     // Fechar o menu móvel quando a rota mudar
     setMobileMenuOpen(false)
-    
-    // Previne o scroll quando o menu móvel está aberto
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'auto'
-    }
-    
-    return () => {
-      document.body.style.overflow = 'auto'
-    }
-  }, [mobileMenuOpen, pathname])
-  
+  }, [pathname])
+
   // Verificar se um link está ativo
   const isActive = (href: string) => {
     if (!mounted) return false
     return pathname === href || pathname.startsWith(href + '/')
   }
 
-  // Verificar se algum conteúdo está ativo
-  const isContentActive = () => {
-    if (!mounted) return false
-    return contentItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
-  }
-  
   // Função para fazer logout
   const handleLogout = async () => {
     try {
@@ -144,18 +72,18 @@ export function DashboardSidebar() {
       if (localStorage.getItem("specialUser")) {
         localStorage.removeItem("specialUser")
       }
-      
+
       // Se estiver usando Supabase, fazer logout
       if (supabase) {
         await supabase.auth.signOut()
       }
-      
+
       // Mostrar mensagem de sucesso
       toast({
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso",
       })
-      
+
       // Redirecionar para a página de login
       router.push('/login')
     } catch (error) {
@@ -169,37 +97,37 @@ export function DashboardSidebar() {
   }
 
   return (
-    <>
+    <div>
       {/* Navbar fixa no topo */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#D9C5B2]/50 shadow-md backdrop-blur-sm bg-white/95">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#D9C5B2]/50 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 md:h-24">
             {/* Logo e marca */}
             <div className="flex items-center">
-              <Link href="/dashboard" className="flex items-center group">
-                <div className="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full bg-gradient-to-br from-[#B38E6A] to-[#8A6D50] shadow-md mr-3 group-hover:shadow-lg transition-all duration-300">
+              <Link href="/dashboard" className="flex items-center">
+                <div className="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full bg-gradient-to-br from-[#B38E6A] to-[#8A6D50] shadow-md mr-3">
                   <span className="font-semibold text-lg text-white">F</span>
                 </div>
                 <div>
-                  <span className="text-lg sm:text-2xl font-semibold text-[#8A6D50] hidden sm:block tracking-wide">
+                  <span className="text-lg sm:text-2xl font-semibold text-[#8A6D50] hidden sm:block">
                     Fisio<span className="text-[#B38E6A]">Derma</span>
                   </span>
                   <span className="text-xs font-medium text-neutral-500 hidden sm:block">Fisioterapia Dermatofuncional</span>
                 </div>
               </Link>
             </div>
-            
+
             {/* Links de navegação - Visíveis apenas no desktop */}
             <div className="hidden md:flex md:items-center md:space-x-6">
               {navItems.map((item) => {
                 const active = isActive(item.href);
-                
+
                 return (
-                  <Link 
+                  <Link
                     key={item.href}
                     href={item.href}
                     className={`relative px-5 py-3 rounded-md text-base font-medium transition-all duration-200 hover:bg-[#F7F2EB]/70 ${
-                      active 
+                      active
                         ? "text-[#8A6D50]" 
                         : "text-neutral-500 hover:text-[#B38E6A]"
                     }`}
@@ -208,10 +136,10 @@ export function DashboardSidebar() {
                       <item.icon size={18} className={active ? "text-[#B38E6A]" : ""} />
                       <span>{item.label}</span>
                     </div>
-                    
+
                     {/* Indicador de ativo */}
                     {active && (
-                      <motion.div 
+                      <motion.div
                         className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B38E6A] rounded-full"
                         layoutId="activeIndicator"
                         transition={{ type: "spring", duration: 0.5 }}
@@ -221,76 +149,57 @@ export function DashboardSidebar() {
                 );
               })}
             </div>
-            
-            {/* Menu do usuário e botão de menu móvel */}
-            <div className="flex items-center">
-              {/* Botão de menu móvel */}
-              <div className="ml-2 -mr-2 flex md:hidden">
-                <button
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="inline-flex items-center justify-center p-3 rounded-md text-[#B38E6A] hover:bg-[#F7F2EB] focus:outline-none"
-                >
-                  <span className="sr-only">Abrir menu</span>
-                  {mobileMenuOpen ? (
-                    <X size={24} aria-hidden="true" />
-                  ) : (
-                    <Menu size={24} aria-hidden="true" />
-                  )}
-                </button>
-              </div>
-            </div>
+
+            {/* Botão de menu móvel */}
+            <button
+              type="button"
+              className="inline-flex items-center justify-center p-3 rounded-md text-[#B38E6A] hover:bg-[#F7F2EB] md:hidden border border-[#B38E6A]/30"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Menu"
+            >
+              {mobileMenuOpen ? (
+                <X size={24} />
+              ) : (
+                <MenuIcon size={24} />
+              )}
+            </button>
           </div>
         </div>
-        
-        {/* Menu móvel - Redesenhado para melhor experiência em dispositivos móveis */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div 
-              className="md:hidden"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="px-3 pt-3 pb-6 space-y-3 sm:px-4 border-t border-[#D9C5B2]/30 bg-[#F7F2EB]/40">
-                {/* Itens de navegação principais */}
-                {navItems.map((item) => {
-                  const active = isActive(item.href);
-                  
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center px-4 py-4 rounded-md text-base font-medium ${
-                        active 
-                          ? "bg-[#F7F2EB] text-[#8A6D50] border-l-4 border-[#B38E6A]" 
-                          : "text-neutral-600 hover:bg-[#F7F2EB]/50 hover:text-[#B38E6A]"
-                      }`}
-                    >
-                      <item.icon size={22} className="mr-3" />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-                
-                {/* Divisor */}
-                <div className="my-2 border-t border-[#D9C5B2]/30"></div>
-                
-                {/* Botão de ajuda */}
-                <Link 
-                  href="/"
-                  className="flex items-center justify-center py-3 bg-gradient-to-r from-[#B38E6A] to-[#9F7D5D] text-white rounded-md font-medium shadow-sm"
-                >
-                  <span>Voltar para o Início</span>
-                </Link>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
+        {/* Menu móvel - Versão simplificada */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-[#D9C5B2]/30 py-2 shadow-lg">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center px-4 py-3 text-base ${
+                  isActive(item.href)
+                    ? "bg-[#F7F2EB] text-[#8A6D50] border-l-4 border-[#B38E6A]"
+                    : "text-neutral-600"
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <item.icon size={20} className="mr-3" />
+                {item.label}
+              </Link>
+            ))}
+
+            <div className="px-4 py-3">
+              <Link
+                href="/"
+                className="block w-full py-2 text-center bg-[#B38E6A] text-white rounded-md"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Voltar para o Início
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
-      
+
       {/* Espaçador para compensar a altura da navbar fixa */}
       <div className="h-24 md:h-36"></div>
-    </>
+    </div>
   )
-}
+} 

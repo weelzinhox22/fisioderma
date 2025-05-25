@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { 
-  BookOpen, 
+  BookOpen,
   FileText, 
   Search, 
   Play,
@@ -36,8 +36,6 @@ export default function ConteudosPage() {
   const categories = [
     { id: "todos", label: "Todos" },
     { id: "pdf", label: "Documentos", icon: FileText },
-    { id: "video", label: "Vídeos", icon: Play },
-    { id: "artigo", label: "Artigos", icon: BookOpen },
   ]
   
   // Array com conteúdos
@@ -55,21 +53,6 @@ export default function ConteudosPage() {
       date: "28/11/2023",
       author: "Dra. Ana Silva",
       featured: true,
-      link: "/conteudos/radiofrequencia"
-    },
-    { 
-      id: "2", 
-      title: "Aplicação Prática da Radiofrequência",
-      subtitle: "Técnicas e protocolos clínicos",
-      description: "Um guia completo sobre protocolos de aplicação em diferentes áreas do corpo.",
-      type: "video", 
-      category: "Radiofrequência",
-      color: "#E57373",
-      icon: Zap,
-      duration: "18 min",
-      date: "02/12/2023", 
-      author: "Dr. Carlos Mendes",
-      featured: false,
       link: "/conteudos/radiofrequencia"
     },
     { 
@@ -104,32 +87,17 @@ export default function ConteudosPage() {
     },
     { 
       id: "5", 
-      title: "Técnicas de Lipocavitação",
-      subtitle: "Aplicação passo a passo",
-      description: "Tutorial em vídeo demonstrando a técnica correta de aplicação do ultrassom cavitacional.",
-      type: "video", 
+      title: "Lipocavitação: Técnicas e Aplicação",
+      subtitle: "Uma Abordagem Detalhada",
+      description: "Aprenda sobre as técnicas de lipocavitação e seus benefícios para redução de gordura localizada.",
+      type: "pdf", 
       category: "Lipocavitação",
       color: "#81C784",
       icon: Waves,
-      duration: "22 min",
+      duration: "15 min de leitura",
       date: "05/12/2023", 
       author: "Dr. Paulo Henrique",
       featured: true,
-      link: "/conteudos/lipocavitacao"
-    },
-    { 
-      id: "6", 
-      title: "Lipocavitação e Drenagem Linfática",
-      subtitle: "Protocolos combinados",
-      description: "Artigo sobre a potencialização de resultados com técnicas complementares.",
-      type: "artigo", 
-      category: "Lipocavitação",
-      color: "#81C784",
-      icon: Waves,
-      duration: "8 min de leitura",
-      date: "15/11/2023", 
-      author: "Dra. Fernanda Lima",
-      featured: false,
       link: "/conteudos/lipocavitacao"
     },
     { 
@@ -167,28 +135,14 @@ export default function ConteudosPage() {
       title: "Fisioterapia no Pós-Operatório",
       subtitle: "Recuperação e prevenção de complicações",
       description: "Protocolos para diferentes tipos de cirurgias plásticas e reparadoras.",
-      type: "video", 
+      type: "pdf", 
       category: "Pós-operatório",
       color: "#9575CD",
       icon: Scissors,
-      duration: "25 min",
+      duration: "25 min de leitura",
       date: "22/11/2023", 
       author: "Dr. André Gomes",
       featured: true
-    },
-    { 
-      id: "10", 
-      title: "Cicatrização e Fibroses",
-      subtitle: "Tratamento e prevenção",
-      description: "Técnicas para minimizar cicatrizes e evitar fibroses pós-cirúrgicas.",
-      type: "artigo", 
-      category: "Pós-operatório",
-      color: "#9575CD",
-      icon: Scissors,
-      duration: "11 min de leitura",
-      date: "25/11/2023", 
-      author: "Dra. Luísa Rocha",
-      featured: false
     },
   ]
   
