@@ -56,15 +56,14 @@ export function Navbar({ className = '' }: NavbarProps) {
   // Links principais de navegação
   const navItems = [
     { name: "Início", href: "/" },
-    { name: "Conteúdos", href: "/conteudos" },
-    { name: "Provas", href: "/provas" },
+    { name: "Provas", href: "/dashboard/provas/exame" },
     { name: "Contato", href: "/contato" },
   ]
 
   return (
     <>
       {/* Barra de navegação minimalista */}
-    <header
+      <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isMenuOpen 
             ? "bg-transparent" 
@@ -72,37 +71,44 @@ export function Navbar({ className = '' }: NavbarProps) {
               ? "bg-white/95 backdrop-blur-sm shadow-md border-b border-[#D9C5B2]/30" 
               : "bg-transparent"
         } ${className}`}
-    >
-      <div className="container mx-auto px-4">
+      >
+        <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-24 md:h-28">
-            {/* Espaço vazio para manter o layout */}
-            <div></div>
+            {/* Logo - Adicionado para mobile */}
+            <div className="flex items-center">
+              <a 
+                href="/" 
+                className="bg-gradient-to-br from-[#B38E6A] to-[#8A6D50] h-10 w-10 rounded-full flex items-center justify-center shadow-md"
+              >
+                <span className="font-semibold text-lg text-white">F</span>
+              </a>
+            </div>
 
             {/* Botão MENU */}
             <div className="relative z-50">
               <button 
                 onClick={toggleMenu}
-                className={`group flex items-center gap-2 px-6 py-2.5 font-medium rounded-full transition-all duration-500 ${
+                className={`group flex items-center gap-3 px-5 py-2.5 font-medium rounded-full transition-all duration-500 ${
                   isScrolled 
-                    ? "text-gray-900 hover:bg-[#F7F2EB] shadow-sm border border-[#D9C5B2]/30" 
-                    : "text-white hover:bg-white/10 shadow-lg backdrop-blur-sm"
+                    ? "text-gray-900 hover:bg-[#F7F2EB] shadow-sm border border-[#D9C5B2]/30 hover:border-[#B38E6A]/50" 
+                    : "text-white hover:bg-white/20 shadow-lg backdrop-blur-sm"
                 }`}
-                aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+                aria-label={isMenuOpen ? "Fechar menu" : "Menu"}
               >
-                <span className="transition-all duration-500 transform group-hover:translate-x-1">
+                <span className="transition-all duration-500 transform group-hover:translate-x-0.5 tracking-wide">
                   {isMenuOpen ? "Fechar" : "Menu"}
                 </span>
                 
-                <div className="relative w-6 h-6 flex items-center justify-center">
+                <div className="relative w-5 h-5 flex items-center justify-center">
                   {/* Icone de menu com animação */}
                   {!isMenuOpen ? (
                     <Menu className={`w-5 h-5 transition-all duration-500 transform group-hover:scale-110 ${
-                      isScrolled ? "text-gray-900" : "text-white"
+                      isScrolled ? "text-[#B38E6A]" : "text-white"
                     }`} />
                   ) : (
                     <div className="relative w-5 h-5">
                       <X className={`absolute inset-0 w-full h-full transition-all duration-500 rotate-0 ${
-                        isScrolled ? "text-gray-900" : "text-white"
+                        isScrolled ? "text-[#B38E6A]" : "text-white"
                       }`} />
                     </div>
                   )}
@@ -138,8 +144,16 @@ export function Navbar({ className = '' }: NavbarProps) {
           {/* Cabeçalho do menu com botão de fechar evidente */}
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
-              {/* Espaço vazio para manter o layout */}
-              <div></div>
+              {/* Logo no cabeçalho do menu */}
+              <div className="flex items-center">
+                <a 
+                  href="/" 
+                  className="bg-gradient-to-br from-[#B38E6A] to-[#8A6D50] h-10 w-10 rounded-full flex items-center justify-center shadow-md"
+                >
+                  <span className="font-semibold text-lg text-white">F</span>
+                </a>
+                <span className="ml-3 text-lg font-medium text-[#8A6D50]">FisioDerma</span>
+              </div>
               
               {/* Botão Fechar claramente visível */}
               <button
@@ -157,11 +171,11 @@ export function Navbar({ className = '' }: NavbarProps) {
           </div>
 
           {/* Conteúdo principal do menu */}
-          <div className="flex-grow flex items-center justify-center">
-            <div className="container mx-auto px-4 md:px-8">
+          <div className="flex-grow flex items-center justify-center overflow-y-auto">
+            <div className="container mx-auto px-4 md:px-8 py-4 md:py-0">
               {/* Links de navegação */}
               <div className="flex flex-col justify-center items-start max-w-4xl mx-auto">
-                <nav className="space-y-8 md:space-y-10 w-full">
+                <nav className="space-y-6 md:space-y-10 w-full">
                   {navItems.map((item, index) => (
                     <div 
                       key={item.name}
@@ -169,7 +183,7 @@ export function Navbar({ className = '' }: NavbarProps) {
                     >
                       <button
                         onClick={() => handleNavigation(item.href)}
-                        className="group relative text-4xl md:text-6xl font-bold transition-all duration-700 flex items-center"
+                        className="group relative text-3xl md:text-6xl font-bold transition-all duration-700 flex items-center w-full py-2"
                         style={{ 
                           color: pathname === item.href ? colors.primary : colors.textDark,
                           transitionDelay: isMenuOpen ? `${200 + index * 100}ms` : '0ms',
@@ -215,39 +229,24 @@ export function Navbar({ className = '' }: NavbarProps) {
                     </div>
                   ))}
                 </nav>
-
-                {/* Botão de login com animação */}
-                <div 
-                  className="mt-16 w-full"
-                  style={{ 
-                    transitionDelay: isMenuOpen ? '600ms' : '0ms',
-                    opacity: isMenuOpen ? 1 : 0,
-                    transform: isMenuOpen ? 'translateY(0)' : 'translateY(2rem)',
-                    transition: 'opacity 500ms ease, transform 500ms ease'
-                  }}
-                >
-                  <button
-                    onClick={() => handleNavigation("/login")}
-                    className="group px-10 py-3 rounded-full text-white text-lg font-medium transition-all duration-500 transform hover:translate-x-1 shadow-lg"
-                    style={{ 
-                      background: `linear-gradient(to right, ${colors.primary}, ${colors.accent})` 
-                    }}
-                  >
-                    <span className="relative flex items-center">
-                      Login
-                      <svg 
-                        className="ml-2 w-5 h-5 transition-transform duration-500 transform group-hover:translate-x-1" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24" 
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                      </svg>
-                    </span>
-                  </button>
-                </div>
               </div>
+            </div>
+          </div>
+          
+          {/* Botões de acesso rápido no menu */}
+          <div className="container mx-auto px-4 py-8 border-t border-gray-100">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="/dashboard" 
+                className="group flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#B38E6A] to-[#9F7D5D] rounded-xl text-white hover:from-[#9F7D5D] hover:to-[#8A6D50] transition-all duration-300 shadow-md hover:shadow-lg"
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleMenu();
+                  setTimeout(() => handleNavigation('/dashboard'), 500);
+                }}
+              >
+                <span className="font-medium">Acessar Plataforma</span>
+              </a>
             </div>
           </div>
         </div>

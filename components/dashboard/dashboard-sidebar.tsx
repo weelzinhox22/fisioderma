@@ -48,6 +48,11 @@ export function DashboardSidebar() {
       href: '/dashboard/provas/exame', 
       label: 'Avaliação',
       icon: GraduationCap 
+    },
+    { 
+      href: '/banco-questoes-login', 
+      label: 'Banco de Questões',
+      icon: FileText 
     }
   ]
 
@@ -163,15 +168,15 @@ export function DashboardSidebar() {
       {/* Navbar fixa no topo */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#D9C5B2]/50 shadow-md backdrop-blur-sm bg-white/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-24">
+          <div className="flex items-center justify-between h-20 md:h-24">
             {/* Logo e marca */}
             <div className="flex items-center">
               <Link href="/dashboard" className="flex items-center group">
-                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-br from-[#B38E6A] to-[#8A6D50] shadow-md mr-3 group-hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full bg-gradient-to-br from-[#B38E6A] to-[#8A6D50] shadow-md mr-3 group-hover:shadow-lg transition-all duration-300">
                   <span className="font-semibold text-lg text-white">F</span>
                 </div>
                 <div>
-                  <span className="text-2xl font-semibold text-[#8A6D50] hidden sm:block tracking-wide">
+                  <span className="text-lg sm:text-2xl font-semibold text-[#8A6D50] hidden sm:block tracking-wide">
                     Fisio<span className="text-[#B38E6A]">Derma</span>
                   </span>
                   <span className="text-xs font-medium text-neutral-500 hidden sm:block">Fisioterapia Dermatofuncional</span>
@@ -280,26 +285,17 @@ export function DashboardSidebar() {
             
             {/* Menu do usuário e botão de menu móvel */}
             <div className="flex items-center">
-              {/* Botão de logout direto na navbar */}
-              <button
-                onClick={handleLogout}
-                className="flex items-center text-sm rounded-md px-4 py-2 ml-4 bg-red-50 text-red-600 hover:bg-red-100 transition-colors focus:outline-none focus:ring-2 focus:ring-red-200"
-              >
-                <LogOut size={18} className="mr-2" />
-                <span className="font-medium">Sair</span>
-              </button>
-              
-              {/* Botão do menu móvel */}
+              {/* Botão de menu móvel */}
               <div className="ml-2 -mr-2 flex md:hidden">
                 <button
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="inline-flex items-center justify-center p-2 rounded-md text-[#B38E6A] hover:bg-[#F7F2EB] focus:outline-none"
+                  className="inline-flex items-center justify-center p-3 rounded-md text-[#B38E6A] hover:bg-[#F7F2EB] focus:outline-none"
                 >
                   <span className="sr-only">Abrir menu</span>
                   {mobileMenuOpen ? (
-                    <X size={22} aria-hidden="true" />
+                    <X size={24} aria-hidden="true" />
                   ) : (
-                    <Menu size={22} aria-hidden="true" />
+                    <Menu size={24} aria-hidden="true" />
                   )}
                 </button>
               </div>
@@ -317,7 +313,7 @@ export function DashboardSidebar() {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="px-3 pt-3 pb-4 space-y-2 sm:px-4 border-t border-[#D9C5B2]/30 bg-[#F7F2EB]/40">
+              <div className="px-3 pt-3 pb-6 space-y-3 sm:px-4 border-t border-[#D9C5B2]/30 bg-[#F7F2EB]/40">
                 {navItems.map((item) => {
                   const active = isActive(item.href);
                   
@@ -325,20 +321,20 @@ export function DashboardSidebar() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center px-4 py-3 rounded-md text-base font-medium ${
+                      className={`flex items-center px-4 py-4 rounded-md text-base font-medium ${
                         active 
                           ? "bg-[#F7F2EB] text-[#8A6D50] border-l-4 border-[#B38E6A]" 
                           : "text-neutral-600 hover:bg-[#F7F2EB]/50 hover:text-[#B38E6A]"
                       }`}
                     >
-                      <item.icon size={20} className="mr-3" />
+                      <item.icon size={22} className="mr-3" />
                       {item.label}
                     </Link>
                   );
                 })}
                 
                 {/* Cabeçalho da seção de conteúdos no móvel */}
-                <div className="pt-3 pb-2">
+                <div className="pt-4 pb-2">
                   <p className="px-4 text-sm font-medium text-neutral-500 uppercase tracking-wider">Conteúdos</p>
                 </div>
                 
@@ -350,14 +346,14 @@ export function DashboardSidebar() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center px-4 py-3 rounded-md text-base font-medium ${
+                      className={`flex items-center px-4 py-4 rounded-md text-base font-medium ${
                         active 
                           ? "bg-[#F7F2EB] text-[#8A6D50] border-l-4 border-[#B38E6A]" 
                           : "text-neutral-600 hover:bg-[#F7F2EB]/50 hover:text-[#B38E6A]"
                       }`}
                     >
                       <item.icon 
-                        size={20} 
+                        size={22} 
                         className="mr-3" 
                         style={{ color: active ? "#B38E6A" : item.color }} 
                       />
@@ -366,16 +362,16 @@ export function DashboardSidebar() {
                   );
                 })}
                 
-                {/* Itens do menu do usuário também no menu móvel */}
-                <div className="border-t border-[#D9C5B2]/30 pt-3 mt-3"></div>
+                {/* Divisor */}
+                <div className="my-2 border-t border-[#D9C5B2]/30"></div>
                 
-                <button 
-                  onClick={handleLogout}
-                  className="flex items-center w-full px-4 py-3 rounded-md text-base font-medium text-red-600 hover:bg-red-50"
+                {/* Botão de ajuda */}
+                <Link 
+                  href="/"
+                  className="flex items-center justify-center py-3 bg-gradient-to-r from-[#B38E6A] to-[#9F7D5D] text-white rounded-md font-medium shadow-sm"
                 >
-                  <LogOut size={20} className="mr-3" />
-                  Sair
-                </button>
+                  <span>Voltar para o Início</span>
+                </Link>
               </div>
             </motion.div>
           )}
@@ -383,7 +379,7 @@ export function DashboardSidebar() {
       </div>
       
       {/* Espaçador para compensar a altura da navbar fixa */}
-      <div className="h-36"></div>
+      <div className="h-24 md:h-36"></div>
     </>
   )
 }
