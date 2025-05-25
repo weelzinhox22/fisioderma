@@ -30,29 +30,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
       try {
         console.log("Inicializando Supabase...")
         
-        // Tentar criar cliente sem especificar configurações
-        try {
-          const supabaseClient = createClientComponentClient()
-          setSupabase(supabaseClient)
-          console.log("Cliente Supabase criado")
-          
-          // Verificar se a conexão é válida tentando uma operação básica
-          const { error: testError } = await supabaseClient.auth.getSession()
-          if (testError) {
-            console.warn("Erro ao testar conexão Supabase:", testError)
-            throw new Error("Teste de conexão falhou")
-          }
-        } catch (initError) {
-          console.warn("Falha ao inicializar Supabase normalmente, tentando fallback:", initError)
-          // Fallback: tentar criar usando URL e chave anônima padrão do Supabase Edge Runtime
-          const supabaseClient = createClientComponentClient({
-            supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || "https://supabase-url-example.supabase.co",
-            supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-          })
-          setSupabase(supabaseClient)
-        }
-
-        // Verificar usuário especial (modo offline)
+        // Verificar usuário especial (modo offline) primeiro
         const specialUserStr = localStorage.getItem("specialUser")
         if (specialUserStr) {
           try {
@@ -68,11 +46,52 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
             localStorage.removeItem("specialUser")
           }
         }
+        
+        // Tentar criar cliente sem especificar configurações
+        let supabaseClient;
+        try {
+          console.log("Tentando criar cliente Supabase com configurações padrão...")
+          supabaseClient = createClientComponentClient()
+          
+          // Verificar se a conexão é válida tentando uma operação básica
+          const { error: testError } = await supabaseClient.auth.getSession()
+          if (testError) {
+            console.warn("Erro ao testar conexão Supabase:", testError)
+            throw new Error("Teste de conexão falhou")
+          }
+          
+          console.log("Cliente Supabase criado com sucesso")
+          setSupabase(supabaseClient)
+        } catch (initError) {
+          console.warn("Falha ao inicializar Supabase normalmente:", initError)
+          
+          // Verificar se as variáveis de ambiente estão definidas
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+          const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+          
+          console.log("Variáveis de ambiente disponíveis:", {
+            url: supabaseUrl ? "Definida" : "Não definida",
+            key: supabaseKey ? "Definida" : "Não definida"
+          })
+          
+          if (!supabaseUrl || !supabaseKey) {
+            throw new Error("Variáveis de ambiente do Supabase não estão configuradas")
+          }
+          
+          // Fallback: tentar criar usando URL e chave explicitamente
+          console.log("Tentando criar cliente Supabase com configurações explícitas...")
+          supabaseClient = createClientComponentClient({
+            supabaseUrl,
+            supabaseKey,
+          })
+          
+          setSupabase(supabaseClient)
+        }
 
         // Se temos um cliente Supabase válido, tente obter a sessão
-        if (supabase) {
+        if (supabaseClient) {
           // Verificar sessão atual
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+          const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession()
           
           if (sessionError) {
             console.error("Erro ao obter sessão:", sessionError)
@@ -86,7 +105,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
             // Buscar perfil do usuário
             try {
               // Primeiro tentar tabela user_profiles
-              const { data: userProfileData, error: userProfileError } = await supabase
+              const { data: userProfileData, error: userProfileError } = await supabaseClient
                 .from("user_profiles")
                 .select("role")
                 .eq("id", session.user.id)
@@ -99,7 +118,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
                 console.warn("Erro ou sem dados em user_profiles, tentando profiles:", userProfileError)
                 
                 // Fallback para tabela profiles
-                const { data: profileData, error: profileError } = await supabase
+                const { data: profileData, error: profileError } = await supabaseClient
                   .from("profiles")
                   .select("role")
                   .eq("id", session.user.id)
@@ -118,14 +137,14 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
           }
 
           // Configurar listener de mudança de autenticação
-          const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
             console.log("Mudança de estado de autenticação:", event)
             setUser(session?.user ?? null)
 
             if (session?.user) {
               try {
                 // Tentar ambas as tabelas para buscar o perfil
-                const { data: profileData } = await supabase
+                const { data: profileData } = await supabaseClient
                   .from("user_profiles")
                   .select("role")
                   .eq("id", session.user.id)
@@ -134,7 +153,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
                 if (profileData) {
                   setUserRole(profileData?.role ?? null)
                 } else {
-                  const { data: oldProfileData } = await supabase
+                  const { data: oldProfileData } = await supabaseClient
                     .from("profiles")
                     .select("role")
                     .eq("id", session.user.id)

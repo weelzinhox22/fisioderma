@@ -5,50 +5,65 @@ import type { NextRequest } from "next/server"
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
   
-  // Criar cliente Supabase
-  const supabase = createMiddlewareClient({ req, res })
-
   try {
+    // Verificar se existe um usuário especial no cookie
+    const hasSpecialUserCookie = req.cookies.has("specialUser")
+    const path = req.nextUrl.pathname
+    
+    // Rotas que requerem autenticação
+    const authRoutes = ["/dashboard", "/conteudos", "/provas"]
+    // Rotas que requerem autenticação especial (admin ou professor)
+    const specialRoutes = ["/banco-questoes"]
+    
+    // Verificar se a rota atual requer autenticação
+    const isAuthRoute = authRoutes.some((route) => path.startsWith(route))
+    const isSpecialRoute = specialRoutes.some((route) => path.startsWith(route))
+    
+    // Se o usuário tem cookie de usuário especial, permitir acesso
+    if (hasSpecialUserCookie) {
+      console.log("Usuário especial detectado via cookie, permitindo acesso")
+      return res
+    }
+    
+    // Criar cliente Supabase
+    const supabase = createMiddlewareClient({ req, res })
+    
     // Verificar sessão
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
 
-  // Verificar se existe um usuário especial no localStorage (apenas para cliente)
-  const hasSpecialUser = req.cookies.has("specialUser")
-
-  // Rotas que requerem autenticação
-  const authRoutes = ["/dashboard", "/conteudos", "/provas"]
-
-  // Rotas que requerem autenticação especial (admin ou professor)
-  const specialRoutes = ["/banco-questoes"]
-
-  const path = req.nextUrl.pathname
-
-  // Verificar se a rota atual requer autenticação
-  const isAuthRoute = authRoutes.some((route) => path.startsWith(route))
-  const isSpecialRoute = specialRoutes.some((route) => path.startsWith(route))
-
-  // Se for uma rota que requer autenticação especial
-  if (isSpecialRoute) {
-    // Verificar se o usuário está autenticado como usuário especial
-    if (!hasSpecialUser && !session) {
+    // Se for uma rota que requer autenticação especial
+    if (isSpecialRoute && !session) {
       const redirectUrl = new URL("/login", req.url)
       redirectUrl.searchParams.set("redirectTo", path)
       return NextResponse.redirect(redirectUrl)
     }
-  }
 
-  // Se for uma rota que requer autenticação normal
-  if (isAuthRoute && !session && !hasSpecialUser) {
-    const redirectUrl = new URL("/login", req.url)
-    redirectUrl.searchParams.set("redirectTo", path)
-    return NextResponse.redirect(redirectUrl)
-  }
+    // Se for uma rota que requer autenticação normal
+    if (isAuthRoute && !session) {
+      const redirectUrl = new URL("/login", req.url)
+      redirectUrl.searchParams.set("redirectTo", path)
+      return NextResponse.redirect(redirectUrl)
+    }
 
-  return res
+    return res
   } catch (error) {
     console.error("Erro no middleware:", error)
+    
+    // Em caso de erro, verificar se o usuário está tentando acessar uma rota protegida
+    const path = req.nextUrl.pathname
+    const authRoutes = ["/dashboard", "/conteudos", "/provas", "/banco-questoes"]
+    const isProtectedRoute = authRoutes.some(route => path.startsWith(route))
+    
+    if (isProtectedRoute) {
+      // Se for uma rota protegida e houve erro, redirecionar para login
+      const redirectUrl = new URL("/login", req.url)
+      redirectUrl.searchParams.set("redirectTo", path)
+      redirectUrl.searchParams.set("error", "connection")
+      return NextResponse.redirect(redirectUrl)
+    }
+    
     return res
   }
 }

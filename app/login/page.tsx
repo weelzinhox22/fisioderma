@@ -3,7 +3,9 @@
 import { LoginForm } from "@/components/auth/login-form"
 import { Navbar } from "@/components/navbar"
 import Link from "next/link"
-import { Suspense } from "react"
+import { Suspense, useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { AlertCircle } from "lucide-react"
 
 // Cores em tons bege/nude refinados
 const colors = {
@@ -27,6 +29,17 @@ function LoginFormSkeleton() {
 }
 
 export default function LoginPage() {
+  const searchParams = useSearchParams()
+  const [connectionError, setConnectionError] = useState(false)
+  
+  useEffect(() => {
+    // Verificar se há erro de conexão na URL
+    const error = searchParams.get("error")
+    if (error === "connection") {
+      setConnectionError(true)
+    }
+  }, [searchParams])
+  
   return (
     <div 
       className="h-screen flex flex-col overflow-hidden relative bg-white"
@@ -87,6 +100,22 @@ export default function LoginPage() {
               Acesse sua conta para continuar
             </p>
           </div>
+
+          {connectionError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md mb-4 flex items-start gap-3">
+              <div className="shrink-0">
+                <AlertCircle size={18} className="text-red-500 mt-0.5" />
+              </div>
+              <div>
+                <p className="text-sm text-red-800">
+                  Detectamos um problema de conexão com o servidor. Isso pode ocorrer se você estiver offline ou se o servidor estiver indisponível.
+                </p>
+                <p className="text-xs text-red-600 mt-1 font-semibold">
+                  Você pode usar as contas especiais para acessar o sistema mesmo offline.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div 
             className="p-7 rounded-xl shadow-lg backdrop-blur-sm bg-white/95"

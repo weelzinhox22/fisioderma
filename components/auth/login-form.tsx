@@ -33,6 +33,7 @@ export function LoginForm() {
   const { toast } = useToast()
   const redirectTo = searchParams.get("redirectTo") || "/dashboard"
   const [configError, setConfigError] = useState<string | null>(null)
+  const [networkError, setNetworkError] = useState<boolean>(false)
 
   useEffect(() => {
     // Verificar se há erros de configuração do Supabase
@@ -44,6 +45,29 @@ export function LoginForm() {
       setConfigError(msg)
       console.error(msg)
     }
+    
+    // Verificar conectividade com o Supabase
+    const checkConnection = async () => {
+      if (supabase) {
+        try {
+          const start = Date.now()
+          const { error } = await supabase.auth.getSession()
+          const elapsed = Date.now() - start
+          
+          if (error || elapsed > 5000) {
+            console.warn("Problemas de conectividade com Supabase:", { error, elapsed })
+            setNetworkError(true)
+          } else {
+            setNetworkError(false)
+          }
+        } catch (e) {
+          console.error("Erro ao verificar conexão:", e)
+          setNetworkError(true)
+        }
+      }
+    }
+    
+    checkConnection()
   }, [supabase, errorMessage])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,6 +88,7 @@ export function LoginForm() {
         const isAdmin = email === "weelzinho@admin.com"
         const isProfessor = email === "profadrianadermato@dermato.com"
 
+        // Armazenar no localStorage e também em um cookie para o middleware
         localStorage.setItem(
           "specialUser",
           JSON.stringify({
@@ -73,6 +98,9 @@ export function LoginForm() {
             isSpecialUser: true,
           })
         )
+        
+        // Criar um cookie para o middleware
+        document.cookie = `specialUser=true; path=/; max-age=${60*60*24*30}; SameSite=Lax`;
 
         toast({
           title: "Login realizado com sucesso!",
@@ -87,18 +115,23 @@ export function LoginForm() {
       if (!supabase) {
         throw new Error("Erro de configuração: Cliente Supabase não está disponível")
       }
+      
+      // Verificar conectividade antes de tentar login
+      if (networkError) {
+        throw new Error("Erro de conexão com o servidor. Por favor, verifique sua internet ou use uma conta especial para acessar.")
+      }
 
       console.log("Tentando login com Supabase...")
 
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+          email,
+          password,
+        })
 
         console.log("Resposta do Supabase:", { data, error })
 
-      if (error) {
+        if (error) {
           // Traduzir mensagens de erro comuns
           let mensagem = "Erro ao fazer login. Por favor, tente novamente."
           
@@ -109,30 +142,32 @@ export function LoginForm() {
           } else if (error.message.includes("invalid api key")) {
             mensagem = "Erro de configuração do Supabase. Por favor, contate o suporte."
             console.error("Erro de API key do Supabase:", error)
-          } else if (error.message.includes("Failed to fetch")) {
-            mensagem = "Erro de conexão. Verifique sua internet e tente novamente."
+          } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+            mensagem = "Erro de conexão. Verifique sua internet e tente novamente, ou use uma conta especial."
+            setNetworkError(true)
           }
           
           throw new Error(mensagem)
-      }
+        }
 
         if (data?.user) {
           console.log("Login bem-sucedido:", data.user)
-      toast({
-        title: "Login realizado com sucesso!",
-        description: "Você será redirecionado para o dashboard.",
-      })
+          toast({
+            title: "Login realizado com sucesso!",
+            description: "Você será redirecionado para o dashboard.",
+          })
 
           // Forçar redirecionamento imediato
-      router.push(redirectTo)
-      router.refresh()
+          router.push(redirectTo)
+          router.refresh()
         } else {
           console.warn("Login sem erro mas sem dados do usuário")
           throw new Error("Erro inesperado ao fazer login")
         }
       } catch (fetchError) {
         if (fetchError instanceof TypeError && fetchError.message.includes("Failed to fetch")) {
-          throw new Error("Erro de conexão. Verifique sua internet e tente novamente.")
+          setNetworkError(true)
+          throw new Error("Erro de conexão com o servidor. Por favor, verifique sua internet ou use uma conta especial para acessar.")
         }
         throw fetchError
       }
@@ -165,6 +200,26 @@ export function LoginForm() {
             <p className="text-xs text-amber-600 mt-1">
               Você ainda pode usar as contas especiais para acessar o sistema.
             </p>
+          </div>
+        </div>
+      )}
+      
+      {networkError && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-md mb-4 flex items-start gap-3">
+          <div className="shrink-0">
+            <AlertCircle size={18} className="text-red-500 mt-0.5" />
+          </div>
+          <div>
+            <p className="text-sm text-red-800">
+              Detectamos um problema de conexão com o servidor. Isso pode ocorrer se você estiver offline ou se o servidor estiver indisponível.
+            </p>
+            <p className="text-xs text-red-600 mt-1 font-semibold">
+              Você pode usar as contas especiais para acessar o sistema mesmo offline:
+            </p>
+            <div className="mt-2 text-xs bg-white p-2 rounded border border-red-100">
+              <p><strong>Professor:</strong> profadrianadermato@dermato.com</p>
+              <p><strong>Admin:</strong> weelzinho@admin.com</p>
+            </div>
           </div>
         </div>
       )}
