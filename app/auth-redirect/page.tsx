@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
-export default function AuthRedirectPage() {
+function AuthRedirectContent() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get("redirectTo") || "/dashboard"
   const [message, setMessage] = useState("Redirecionando...")
@@ -33,11 +33,24 @@ export default function AuthRedirectPage() {
   }, [redirectTo])
   
   return (
+    <div className="flex flex-col items-center gap-4">
+      <Loader2 className="h-10 w-10 animate-spin text-[#B38E6A]" />
+      <p className="text-lg text-neutral-700">{message}</p>
+    </div>
+  )
+}
+
+export default function AuthRedirectPage() {
+  return (
     <div className="h-screen flex flex-col items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-[#B38E6A]" />
-        <p className="text-lg text-neutral-700">{message}</p>
-      </div>
+      <Suspense fallback={
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-[#B38E6A]" />
+          <p className="text-lg text-neutral-700">Carregando...</p>
+        </div>
+      }>
+        <AuthRedirectContent />
+      </Suspense>
     </div>
   )
 } 
