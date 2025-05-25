@@ -69,25 +69,14 @@ export function Navbar({ className = '' }: NavbarProps) {
           isMenuOpen 
             ? "bg-transparent" 
             : isScrolled 
-              ? "bg-white/90 backdrop-blur-sm shadow-sm" 
+              ? "bg-white/95 backdrop-blur-sm shadow-md border-b border-[#D9C5B2]/30" 
               : "bg-transparent"
         } ${className}`}
     >
       <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-20 md:h-24">
-            {/* Logo */}
-            <a 
-              onClick={(e) => { 
-                e.preventDefault();
-                if (isMenuOpen) toggleMenu();
-                else router.push("/");
-              }}
-              href="/"
-              className="text-2xl font-semibold transition-all duration-500"
-              style={{ color: isScrolled || isMenuOpen ? colors.primary : "white" }}
-            >
-              FisioNeo
-            </a>
+          <div className="flex items-center justify-between h-24 md:h-28">
+            {/* Espaço vazio para manter o layout */}
+            <div></div>
 
             {/* Botão MENU */}
             <div className="relative z-50">
@@ -95,7 +84,7 @@ export function Navbar({ className = '' }: NavbarProps) {
                 onClick={toggleMenu}
                 className={`group flex items-center gap-2 px-6 py-2.5 font-medium rounded-full transition-all duration-500 ${
                   isScrolled 
-                    ? "text-gray-900 hover:bg-gray-100" 
+                    ? "text-gray-900 hover:bg-[#F7F2EB] shadow-sm border border-[#D9C5B2]/30" 
                     : "text-white hover:bg-white/10 shadow-lg backdrop-blur-sm"
                 }`}
                 aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
@@ -117,8 +106,8 @@ export function Navbar({ className = '' }: NavbarProps) {
                       }`} />
                     </div>
                   )}
-                    </div>
-            </button>
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -149,18 +138,8 @@ export function Navbar({ className = '' }: NavbarProps) {
           {/* Cabeçalho do menu com botão de fechar evidente */}
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
-              <a 
-                onClick={(e) => {
-                  e.preventDefault();
-                  toggleMenu();
-                  router.push("/");
-                }}
-                href="/"
-                className="text-2xl font-semibold"
-                style={{ color: colors.primary }}
-              >
-                FisioNeo
-              </a>
+              {/* Espaço vazio para manter o layout */}
+              <div></div>
               
               {/* Botão Fechar claramente visível */}
               <button
@@ -174,15 +153,15 @@ export function Navbar({ className = '' }: NavbarProps) {
               >
                 <X className="h-6 w-6" />
               </button>
-        </div>
-      </div>
+            </div>
+          </div>
 
           {/* Conteúdo principal do menu */}
           <div className="flex-grow flex items-center justify-center">
             <div className="container mx-auto px-4 md:px-8">
               {/* Links de navegação */}
               <div className="flex flex-col justify-center items-start max-w-4xl mx-auto">
-                <nav className="space-y-6 md:space-y-10 w-full">
+                <nav className="space-y-8 md:space-y-10 w-full">
                   {navItems.map((item, index) => (
                     <div 
                       key={item.name}
@@ -255,7 +234,7 @@ export function Navbar({ className = '' }: NavbarProps) {
                     }}
                   >
                     <span className="relative flex items-center">
-                      Entrar
+                      Login
                       <svg 
                         className="ml-2 w-5 h-5 transition-transform duration-500 transform group-hover:translate-x-1" 
                         fill="none" 

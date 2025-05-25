@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { gsap } from "gsap"
-import { BookOpen, ArrowRight } from "lucide-react"
+import { BookOpen, ArrowRight, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useSupabase } from "@/lib/supabase/provider"
@@ -67,7 +67,7 @@ export function RecentContent() {
           <div ref={contentRef} className="space-y-4">
             {recentContent.map((content, index) => (
               <div key={index} className="content-item">
-                <Link href="/dashboard/conteudos" className="block hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                <Link href="/conteudos" className="block hover:bg-gray-50 p-3 rounded-lg transition-colors">
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="font-medium">{content.title}</h4>

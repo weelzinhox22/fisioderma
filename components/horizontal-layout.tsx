@@ -25,30 +25,23 @@ export function HorizontalLayout() {
     {
       id: 'sobre',
       title: 'Sobre',
-      content: 'Nossa plataforma de fisioterapia dermatofuncional foi desenvolvida para oferecer conteúdo de alta qualidade, baseado em evidências científicas e práticas clínicas atualizadas.',
-      image: '/images/placeholder.jpg'
+      content: 'Nossa plataforma de fisioterapia dermatofuncional foi desenvolvida para oferecer conteúdo educacional de alta qualidade. Combinamos conhecimentos teóricos atualizados com abordagens práticas aplicáveis no dia a dia clínico. Nossa missão é proporcionar aos fisioterapeutas e estudantes recursos confiáveis para aprimorar suas competências na área dermatofuncional.',
+      image: '/images/hero/hero-1-2.jpg'
     },
     {
-      id: 'cursos',
-      title: 'Cursos',
-      content: 'Oferecemos treinamentos especializados em todas as áreas da fisioterapia dermatofuncional, desde procedimentos básicos até técnicas avançadas.',
-      image: '/images/placeholder.jpg'
-    },
-    {
-      id: 'blog',
-      title: 'Artigos',
-      content: 'Mantenha-se atualizado com nossos artigos sobre os mais recentes avanços e pesquisas na área da fisioterapia dermatofuncional.',
-      image: '/images/placeholder.jpg'
+      id: 'conteudos',
+      title: 'Conteúdos',
+      content: 'Nossa plataforma oferece uma biblioteca completa de materiais sobre fisioterapia dermatofuncional, incluindo simulados de provas. Você encontrará conteúdos sobre técnicas como criolipólise, lipocavitação, ultrassom, radiofrequência e muito mais.',
+      image: '/images/hero/hero-2-1.jpg'
     },
     {
       id: 'contato',
       title: 'Contato',
-      content: 'Entre em contato conosco para mais informações sobre nossos serviços e como podemos ajudar em sua formação profissional.',
+      content: 'Entre em contato conosco para mais informações sobre nossos serviços e como podemos ajudar em sua formação profissional. Estamos disponíveis para esclarecer dúvidas e receber feedback sobre a plataforma.',
       links: [
-        { label: 'Email', url: 'mailto:contato@fisiodermatofuncional.com' },
-        { label: 'Telefone', url: 'tel:+55XXXXXXXXXX' },
-        { label: 'Instagram', url: '#' },
-        { label: 'Facebook', url: '#' }
+        { label: 'Email', url: 'mailto:weelzinhox22@gmail.com' },
+        { label: 'WhatsApp', url: 'https://wa.me/5571991373142' },
+        { label: 'Instagram', url: 'https://www.instagram.com/welziinho' }
       ]
     }
   ]
@@ -511,10 +504,33 @@ export function HorizontalLayout() {
               } ${
                 index === sections.length - 1 ? 'bg-neutral-900' : 'bg-neutral-50'
               }`}
+              style={{
+                backgroundImage: section.id === 'sobre' 
+                  ? 'url(/images/hero/hero-1.jpg)' 
+                  : section.id === 'conteudos' 
+                    ? 'url(/images/hero/hero-2.jpg)' 
+                    : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                position: 'relative'
+              }}
             >
+              {/* Overlay gradiente para melhorar a legibilidade e estética */}
+              {(section.id === 'sobre' || section.id === 'conteudos') && (
+                <div 
+                  className="absolute inset-0" 
+                  style={{ 
+                    background: section.id === 'sobre'
+                      ? 'linear-gradient(to right, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.75) 50%, rgba(0, 0, 0, 0.65) 100%)'
+                      : 'linear-gradient(to right, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.65) 60%, rgba(0, 0, 0, 0.55) 100%)'
+                  }}
+                ></div>
+              )}
+              
               <div className="bg-transition"></div>
               
-              <div className="section-content w-full max-w-6xl mx-auto py-12 px-6 md:px-8 lg:px-12">
+              <div className="section-content w-full max-w-6xl mx-auto py-12 px-6 md:px-8 lg:px-12 relative z-10">
                 {index === sections.length - 1 ? (
                   // Última seção (contato) com estilo diferente
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-white">
@@ -544,7 +560,7 @@ export function HorizontalLayout() {
                         <div>
                           <h3 className="text-xl font-light mb-6">Links Rápidos</h3>
                           <ul className="space-y-3">
-                            {['Home', 'Sobre', 'Recursos', 'Blog', 'Contato'].map((item, i) => (
+                            {['Home', 'Sobre', 'Conteúdos', 'Contato'].map((item, i) => (
                               <li
                                 key={i}
                                 className="footer-item hover-lift"
@@ -562,13 +578,13 @@ export function HorizontalLayout() {
                         <div>
                           <h3 className="text-xl font-light mb-6">Recursos</h3>
                           <ul className="space-y-3">
-                            {['Artigos', 'Tutoriais', 'Vídeos', 'FAQ', 'Suporte'].map((item, i) => (
+                            {['Criolipólise', 'Lipocavitação', 'Ultrassom', 'Radiofrequência', 'Provas'].map((item, i) => (
                               <li
                                 key={i}
                                 className="footer-item hover-lift"
                                 style={{ animationDelay: `${i * 100 + 300}ms` }}
                               >
-                                <Link href={`/${item.toLowerCase()}`} 
+                                <Link href={`/conteudos/${item.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`} 
                                       className="text-neutral-400 hover:text-white transition-colors">
                                   {item}
                                 </Link>
@@ -596,24 +612,68 @@ export function HorizontalLayout() {
                 ) : (
                   // Seções normais
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    <div className="section-item">
-                      <h2 className="text-3xl md:text-4xl font-light mb-6">{section.title}</h2>
-                      <p className="text-neutral-600 mb-8 text-lg">{section.content}</p>
+                    <div className="section-item bg-opacity-90 p-8 rounded-xl" style={{ 
+                      background: section.id === 'sobre' || section.id === 'conteudos' 
+                        ? 'rgba(0, 0, 0, 0.4)' 
+                        : 'transparent',
+                      backdropFilter: section.id === 'sobre' || section.id === 'conteudos' ? 'blur(8px)' : 'none',
+                      boxShadow: section.id === 'sobre' || section.id === 'conteudos' ? '0 10px 30px rgba(0, 0, 0, 0.2)' : 'none',
+                      border: section.id === 'sobre' || section.id === 'conteudos' ? '1px solid rgba(255, 255, 255, 0.1)' : 'none'
+                    }}>
+                      {/* Decoração visual antes do título */}
+                      {(section.id === 'sobre' || section.id === 'conteudos') && (
+                        <div className="w-16 h-1 mb-6 rounded-full" style={{ 
+                          background: 'linear-gradient(to right, #B38E6A, #D9C5B2)' 
+                        }}></div>
+                      )}
+                      
+                      <h2 className="text-3xl md:text-5xl font-light mb-6" style={{ 
+                        color: section.id === 'sobre' || section.id === 'conteudos' ? 'white' : '#1a1a1a',
+                        textShadow: section.id === 'sobre' || section.id === 'conteudos' ? '0 2px 4px rgba(0,0,0,0.3)' : 'none'
+                      }}>
+                        {section.title}
+                      </h2>
+                      
+                      <p className="mb-8 text-lg leading-relaxed" style={{ 
+                        color: section.id === 'sobre' || section.id === 'conteudos' ? 'rgba(255, 255, 255, 0.9)' : '#4a4a4a',
+                        maxWidth: '90%'
+                      }}>
+                        {section.content}
+                      </p>
+                      
                       <button 
-                        className="inline-flex items-center text-[#B38E6A] hover:text-[#9F7D5D] transition-colors"
+                        className="inline-flex items-center transition-all duration-300 px-6 py-2.5 rounded-full hover:translate-x-1"
+                        style={{ 
+                          color: 'white',
+                          background: section.id === 'sobre' || section.id === 'conteudos' 
+                            ? 'linear-gradient(to right, #B38E6A, #9F7D5D)' 
+                            : '#B38E6A',
+                          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)'
+                        }}
                       >
-                        <span className="mr-2">Saiba mais</span>
+                        <span className="mr-2">Explorar</span>
                         <ArrowRight className="h-4 w-4" />
                       </button>
                     </div>
                     
-                    <div className="section-item order-first lg:order-last">
-                      <div className="aspect-video bg-neutral-200 rounded-lg overflow-hidden">
-                        {/* Placeholder para imagem/vídeo */}
-                        <div className="w-full h-full flex items-center justify-center text-neutral-400">
-                          Imagem/Vídeo
+                    <div className="section-item order-first lg:order-last lg:pl-12">
+                      {section.image ? (
+                        <div className="aspect-video rounded-xl overflow-hidden shadow-xl transform hover:scale-[1.02] transition-transform duration-500" style={{
+                          boxShadow: '0 15px 30px rgba(0, 0, 0, 0.25)'
+                        }}>
+                          <img 
+                            src={section.image} 
+                            alt={section.title} 
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                      </div>
+                      ) : (
+                        <div className="aspect-video bg-neutral-200 rounded-lg overflow-hidden">
+                          <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                            Imagem não disponível
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

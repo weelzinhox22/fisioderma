@@ -27,7 +27,6 @@ export function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const { supabase, errorMessage } = useSupabase()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -149,33 +148,6 @@ export function LoginForm() {
     }
   }
 
-  const handleGoogleLogin = async () => {
-    setIsGoogleLoading(true)
-    try {
-      if (!supabase) {
-        throw new Error("Supabase não está disponível")
-      }
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?redirectTo=${redirectTo}`,
-        },
-      })
-
-      if (error) {
-        throw error
-      }
-    } catch (error: any) {
-      toast({
-        title: "Erro ao fazer login com Google",
-        description: error.message || "Ocorreu um erro ao tentar fazer login com Google.",
-        variant: "destructive",
-      })
-      setIsGoogleLoading(false)
-    }
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -197,28 +169,24 @@ export function LoginForm() {
         </div>
       )}
 
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full flex items-center justify-center gap-2 border-neutral-200 hover:border-[#B38E6A] hover:bg-[#F8F3EE] transition-all duration-200 h-10 rounded-md"
-        onClick={handleGoogleLogin}
-        disabled={isGoogleLoading || !supabase}
-      >
-        {isGoogleLoading ? 
-          <Loader2 className="h-4 w-4 animate-spin" /> : 
-          <FcGoogle className="h-5 w-5" />
-        }
-        <span className="font-normal">
-        {isGoogleLoading ? "Conectando..." : "Continuar com Google"}
-        </span>
-      </Button>
+      <div className="p-3 bg-blue-50 border border-blue-200 rounded-md mb-4 flex items-start gap-3">
+        <div className="shrink-0">
+          <AlertCircle size={18} className="text-blue-500 mt-0.5" />
+        </div>
+        <div>
+          <p className="text-sm text-blue-800">
+            Se você já está cadastrado no site de conteúdos do Neonato e pediatria, pode utilizar o mesmo email e senha para acessar.
+            Não é necessário criar um novo cadastro.
+          </p>
+        </div>
+      </div>
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <Separator className="bg-neutral-200" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-neutral-500">ou continue com email</span>
+          <span className="bg-white px-2 text-neutral-500">faça login com email</span>
         </div>
       </div>
 

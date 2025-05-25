@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -55,13 +55,22 @@ export function ContentDetails({ id }: ContentDetailsProps) {
     })
   }
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/dashboard/conteudos/${id}`)
-    toast({
-      title: "Link copiado!",
-      description: "O link para este conteúdo foi copiado para a área de transferência.",
-    })
-  }
+  const handleCopyLink = useCallback(() => {
+    try {
+      navigator.clipboard.writeText(`${window.location.origin}/conteudos/${id}`)
+      toast({
+        title: "Link copiado!",
+        description: "O link foi copiado para a área de transferência.",
+      })
+    } catch (error) {
+      console.error("Erro ao copiar link:", error)
+      toast({
+        title: "Erro ao copiar link",
+        description: "Não foi possível copiar o link. Tente novamente.",
+        variant: "destructive",
+      })
+    }
+  }, [id, toast])
 
   if (isLoading) {
     return (
@@ -158,7 +167,7 @@ export function ContentDetails({ id }: ContentDetailsProps) {
               <Bookmark className={`h-4 w-4 mr-2 ${isSaved ? "fill-current" : ""}`} />
               {isSaved ? "Salvo" : "Salvar"}
             </Button>
-            <Button variant="outline" onClick={handleShare}>
+            <Button variant="outline" onClick={handleCopyLink}>
               <Share2 className="h-4 w-4 mr-2" /> Compartilhar
             </Button>
           </div>

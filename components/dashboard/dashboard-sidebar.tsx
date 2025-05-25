@@ -1,21 +1,29 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Home, 
-  BookOpen, 
   FileText, 
   User, 
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  ChevronDown,
+  GraduationCap,
+  BookOpen,
+  Snowflake,
+  Waves,
+  Flame,
+  Zap,
+  Speaker
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useSupabase } from '@/lib/supabase/provider'
+import { useClickAway } from 'react-use'
 
 export function DashboardSidebar() {
   const pathname = usePathname()
@@ -23,42 +31,80 @@ export function DashboardSidebar() {
   const { toast } = useToast()
   const { supabase } = useSupabase()
   const [mounted, setMounted] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [contentMenuOpen, setContentMenuOpen] = useState(false)
+  const userMenuRef = useRef(null)
+  const contentMenuRef = useRef(null)
   
-  // Links da sidebar
-  const menuItems = [
+  // Links da navegação
+  const navItems = [
     { 
       href: '/dashboard', 
       label: 'Dashboard',
       icon: Home 
     },
     { 
-      href: '/dashboard/conteudos', 
-      label: 'Conteúdos',
-      icon: BookOpen 
-    },
-    { 
-      href: '/dashboard/provas', 
-      label: 'Provas',
-      icon: FileText 
-    },
-    { 
-      href: '/dashboard/perfil', 
-      label: 'Perfil',
-      icon: User 
-    },
-    { 
-      href: '/dashboard/configuracoes', 
-      label: 'Configurações',
-      icon: Settings 
-    },
+      href: '/dashboard/provas/exame', 
+      label: 'Avaliação',
+      icon: GraduationCap 
+    }
   ]
+
+  // Conteúdos disponíveis
+  const contentItems = [
+    {
+      href: '/conteudos/criolise',
+      label: 'Criolipólise',
+      icon: Snowflake,
+      color: "#64B5F6"
+    },
+    {
+      href: '/conteudos/lipocavitacao',
+      label: 'Lipocavitação',
+      icon: Waves,
+      color: "#81C784"
+    },
+    {
+      href: '/conteudos/queimados',
+      label: 'Queimados',
+      icon: Flame,
+      color: "#F06292"
+    },
+    {
+      href: '/conteudos/radiofrequencia',
+      label: 'Radiofrequência',
+      icon: Zap,
+      color: "#E57373"
+    },
+    {
+      href: '/conteudos/ultrassom',
+      label: 'Ultrassom',
+      icon: Speaker,
+      color: "#FFB74D"
+    }
+  ]
+
+  // Itens do menu do usuário
+  const userMenuItems = []
   
+  // Fechar menus ao clicar fora
+  useClickAway(userMenuRef, () => {
+    setUserMenuOpen(false)
+  })
+
+  useClickAway(contentMenuRef, () => {
+    setContentMenuOpen(false)
+  })
+
   useEffect(() => {
     setMounted(true)
     
-    // Previne o scroll quando o menu está aberto
-    if (isOpen) {
+    // Fechar o menu móvel quando a rota mudar
+    setMobileMenuOpen(false)
+    
+    // Previne o scroll quando o menu móvel está aberto
+    if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = 'auto'
@@ -67,19 +113,22 @@ export function DashboardSidebar() {
     return () => {
       document.body.style.overflow = 'auto'
     }
-  }, [isOpen])
+  }, [mobileMenuOpen, pathname])
   
   // Verificar se um link está ativo
   const isActive = (href: string) => {
     if (!mounted) return false
-    return pathname === href
+    return pathname === href || pathname.startsWith(href + '/')
+  }
+
+  // Verificar se algum conteúdo está ativo
+  const isContentActive = () => {
+    if (!mounted) return false
+    return contentItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
   }
   
   // Função para fazer logout
   const handleLogout = async () => {
-    // Fechar o menu
-    setIsOpen(false)
-    
     try {
       // Remover usuário especial do localStorage se existir
       if (localStorage.getItem("specialUser")) {
@@ -108,254 +157,233 @@ export function DashboardSidebar() {
       })
     }
   }
-  
-  // Variantes para animações
-  const menuContainerVariants = {
-    hidden: { 
-      opacity: 0,
-      scale: 0.98
-    },
-    visible: { 
-      opacity: 1,
-      scale: 1,
-      transition: { 
-        duration: 0.4, 
-        ease: [0.25, 0.1, 0.25, 1.0],
-        when: "beforeChildren",
-        staggerChildren: 0.05
-      }
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.95,
-      filter: "blur(8px)",
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 0.1, 0.25, 1.0],
-        when: "afterChildren",
-        staggerChildren: 0.03,
-        staggerDirection: -1
-      }
-    }
-  }
-  
-  const menuItemVariants = {
-    hidden: { 
-      y: 30, 
-      opacity: 0,
-      filter: "blur(8px)" 
-    },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      filter: "blur(0px)",
-      transition: { 
-        duration: 0.4, 
-        ease: [0.25, 0.1, 0.25, 1.0]
-      }
-    },
-    exit: {
-      y: -20,
-      opacity: 0,
-      filter: "blur(4px)",
-      transition: {
-        duration: 0.25,
-        ease: [0.25, 0.1, 0.25, 1.0]
-      }
-    }
-  }
-  
-  const logoVariants = {
-    hidden: { x: -30, opacity: 0 },
-    visible: { 
-      x: 0, 
-      opacity: 1,
-      transition: { 
-        duration: 0.5, 
-        ease: [0.25, 0.1, 0.25, 1.0], 
-        delay: 0.1 
-      }
-    },
-    exit: {
-      x: -20,
-      opacity: 0,
-      transition: {
-        duration: 0.2,
-        ease: [0.25, 0.1, 0.25, 1.0]
-      }
-    }
-  }
-  
-  const patternVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 0.04,
-      transition: { 
-        duration: 1.2, 
-        ease: "easeInOut", 
-        delay: 0.3 
-      }
-    },
-    exit: {
-      opacity: 0,
-      transition: {
-        duration: 0.3
-      }
-    }
-  }
 
   return (
     <>
-      {/* Botão de menu flutuante - Sempre visível independente da rota */}
-      <motion.button
-        className="fixed top-5 left-5 z-50 bg-[#B38E6A] rounded-md p-2.5 border-none shadow-lg"
-        onClick={() => setIsOpen(!isOpen)}
-        whileHover={{ scale: 1.05, backgroundColor: "#A47D5D" }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ duration: 0.2 }}
-        aria-label="Menu"
-        style={{ position: 'fixed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        <motion.div 
-          initial={false}
-          animate={{ 
-            rotate: isOpen ? 90 : 0,
-            scale: isOpen ? 1.1 : 1
-          }}
-          transition={{ 
-            duration: 0.3, 
-            ease: [0.25, 0.1, 0.25, 1.0] 
-          }}
-        >
-          {isOpen ? <X size={22} color="white" /> : <Menu size={22} color="white" />}
-        </motion.div>
-      </motion.button>
-      
-      {/* Menu de tela cheia */}
-      <AnimatePresence mode="wait">
-        {isOpen && (
-          <motion.div
-            className="fixed inset-0 bg-white z-40 flex flex-col items-center justify-center overflow-hidden"
-            variants={menuContainerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-          >
-            {/* Logo no canto superior */}
-            <motion.div 
-              className="absolute top-5 left-16 flex items-center"
-              variants={logoVariants}
-            >
-              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-[#B38E6A] mr-3">
-                <span className="font-medium text-base text-white">F</span>
+      {/* Navbar fixa no topo */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#D9C5B2]/50 shadow-md backdrop-blur-sm bg-white/95">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-24">
+            {/* Logo e marca */}
+            <div className="flex items-center">
+              <Link href="/dashboard" className="flex items-center group">
+                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-br from-[#B38E6A] to-[#8A6D50] shadow-md mr-3 group-hover:shadow-lg transition-all duration-300">
+                  <span className="font-semibold text-lg text-white">F</span>
                 </div>
-              <h1 className="text-xl font-medium text-[#B38E6A]">FisioDerma</h1>
-            </motion.div>
+                <div>
+                  <span className="text-2xl font-semibold text-[#8A6D50] hidden sm:block tracking-wide">
+                    Fisio<span className="text-[#B38E6A]">Derma</span>
+                  </span>
+                  <span className="text-xs font-medium text-neutral-500 hidden sm:block">Fisioterapia Dermatofuncional</span>
+                </div>
+              </Link>
+            </div>
             
-            {/* Menu principal */}
-            <div className="flex flex-col items-start w-full max-w-md px-8">
-              {menuItems.map((item, index) => {
+            {/* Links de navegação - Visíveis apenas no desktop */}
+            <div className="hidden md:flex md:items-center md:space-x-6">
+              {navItems.map((item) => {
                 const active = isActive(item.href);
                 
                 return (
-                  <motion.div 
+                  <Link 
                     key={item.href}
-                    className="w-full mb-4"
-                    variants={menuItemVariants}
-                    custom={index}
+                    href={item.href}
+                    className={`relative px-5 py-3 rounded-md text-base font-medium transition-all duration-200 hover:bg-[#F7F2EB]/70 ${
+                      active 
+                        ? "text-[#8A6D50]" 
+                        : "text-neutral-500 hover:text-[#B38E6A]"
+                    }`}
                   >
-                    <Link 
-                      href={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className="inline-block w-full"
-                    >
-                      <div className="group relative">
-                        <div className="flex items-center relative z-10">
-                          <span 
-                            className={`inline-block text-[32px] uppercase font-light tracking-wide transition-colors duration-300 ${
-                              active 
-                                ? "text-white" 
-                                : "text-[#B38E6A] group-hover:text-white"
-                            }`}
-                          >
-                            {item.label}
-                          </span>
-                          <motion.div 
-                            className={`ml-4 ${
-                              active 
-                                ? "text-white" 
-                                : "text-[#B38E6A] opacity-70 group-hover:text-white"
-                            } transition-colors duration-300`}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ 
-                              duration: 0.4,
-                              delay: 0.1 + index * 0.05
-                            }}
-                          >
-                            <item.icon size={24} />
-                          </motion.div>
-                        </div>
-                        <motion.div 
-                          className={`absolute left-0 bottom-0 w-full h-full bg-[#B38E6A] transform origin-left transition-transform duration-300 -z-10 ${
-                            active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                          }`}
-                        />
-                      </div>
-                    </Link>
-                  </motion.div>
+                    <div className="flex items-center space-x-2">
+                      <item.icon size={18} className={active ? "text-[#B38E6A]" : ""} />
+                      <span>{item.label}</span>
+                    </div>
+                    
+                    {/* Indicador de ativo */}
+                    {active && (
+                      <motion.div 
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B38E6A] rounded-full"
+                        layoutId="activeIndicator"
+                        transition={{ type: "spring", duration: 0.5 }}
+                      />
+                    )}
+                  </Link>
                 );
               })}
-              
-              {/* Botão Sair */}
-              <motion.div
-                className="w-full mt-6"
-                variants={menuItemVariants}
-                custom={menuItems.length}
-              >
-                <button 
-                  onClick={handleLogout}
-                  className="inline-block w-full"
+
+              {/* Menu dropdown de conteúdos */}
+              <div className="relative" ref={contentMenuRef}>
+                <button
+                  onClick={() => setContentMenuOpen(!contentMenuOpen)}
+                  className={`relative px-5 py-3 rounded-md text-base font-medium transition-all duration-200 hover:bg-[#F7F2EB]/70 ${
+                    isContentActive() 
+                      ? "text-[#8A6D50]" 
+                      : "text-neutral-500 hover:text-[#B38E6A]"
+                  }`}
                 >
-                  <div className="group relative">
-                    <div className="flex items-center relative z-10">
-                      <span className="inline-block text-[32px] uppercase font-light tracking-wide text-red-500 group-hover:text-white transition-colors duration-300">
-                        Sair
-                      </span>
-                      <motion.div 
-                        className="ml-4 text-red-500 opacity-70 group-hover:text-white transition-colors duration-300"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ 
-                          duration: 0.4,
-                          delay: 0.1 + menuItems.length * 0.05
-                        }}
-                      >
-                        <LogOut size={24} />
-                      </motion.div>
-                    </div>
-                    <motion.div 
-                      className="absolute left-0 bottom-0 w-full h-full bg-red-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 -z-10"
+                  <div className="flex items-center space-x-2">
+                    <BookOpen size={18} className={isContentActive() ? "text-[#B38E6A]" : ""} />
+                    <span>Conteúdos</span>
+                    <ChevronDown 
+                      size={14} 
+                      className={`transition-transform duration-200 ${contentMenuOpen ? 'rotate-180' : ''} ${isContentActive() ? "text-[#B38E6A]" : ""}`} 
                     />
                   </div>
+                  
+                  {/* Indicador de ativo */}
+                  {isContentActive() && (
+                    <motion.div 
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B38E6A] rounded-full"
+                      layoutId="activeIndicator"
+                      transition={{ type: "spring", duration: 0.5 }}
+                    />
+                  )}
                 </button>
-              </motion.div>
+                
+                {/* Dropdown de conteúdos */}
+                <AnimatePresence>
+                  {contentMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute left-0 mt-2 w-60 bg-white rounded-lg shadow-lg py-2 border border-[#D9C5B2]/50 z-50"
+                    >
+                      {contentItems.map((item) => {
+                        const active = isActive(item.href);
+                        
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`flex items-center px-5 py-2.5 text-base hover:bg-[#F7F2EB]/50 transition-colors ${
+                              active 
+                                ? "bg-[#F7F2EB] text-[#8A6D50] border-l-2 border-[#B38E6A]" 
+                                : "text-neutral-600 hover:text-[#B38E6A]"
+                            }`}
+                          >
+                            <item.icon 
+                              size={18} 
+                              className="mr-3" 
+                              style={{ color: active ? "#B38E6A" : item.color }} 
+                            />
+                            {item.label}
+                          </Link>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
             
-            {/* Padrão decorativo de fundo */}
+            {/* Menu do usuário e botão de menu móvel */}
+            <div className="flex items-center">
+              {/* Botão de logout direto na navbar */}
+              <button
+                onClick={handleLogout}
+                className="flex items-center text-sm rounded-md px-4 py-2 ml-4 bg-red-50 text-red-600 hover:bg-red-100 transition-colors focus:outline-none focus:ring-2 focus:ring-red-200"
+              >
+                <LogOut size={18} className="mr-2" />
+                <span className="font-medium">Sair</span>
+              </button>
+              
+              {/* Botão do menu móvel */}
+              <div className="ml-2 -mr-2 flex md:hidden">
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="inline-flex items-center justify-center p-2 rounded-md text-[#B38E6A] hover:bg-[#F7F2EB] focus:outline-none"
+                >
+                  <span className="sr-only">Abrir menu</span>
+                  {mobileMenuOpen ? (
+                    <X size={22} aria-hidden="true" />
+                  ) : (
+                    <Menu size={22} aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Menu móvel */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
             <motion.div 
-              className="absolute top-0 right-0 w-1/2 h-full pointer-events-none"
-              variants={patternVariants}
-              style={{
-                backgroundImage: "url('/images/pattern.svg')",
-                backgroundSize: "cover",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "center right"
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+              className="md:hidden"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="px-3 pt-3 pb-4 space-y-2 sm:px-4 border-t border-[#D9C5B2]/30 bg-[#F7F2EB]/40">
+                {navItems.map((item) => {
+                  const active = isActive(item.href);
+                  
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center px-4 py-3 rounded-md text-base font-medium ${
+                        active 
+                          ? "bg-[#F7F2EB] text-[#8A6D50] border-l-4 border-[#B38E6A]" 
+                          : "text-neutral-600 hover:bg-[#F7F2EB]/50 hover:text-[#B38E6A]"
+                      }`}
+                    >
+                      <item.icon size={20} className="mr-3" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+                
+                {/* Cabeçalho da seção de conteúdos no móvel */}
+                <div className="pt-3 pb-2">
+                  <p className="px-4 text-sm font-medium text-neutral-500 uppercase tracking-wider">Conteúdos</p>
+                </div>
+                
+                {/* Lista de conteúdos no móvel */}
+                {contentItems.map((item) => {
+                  const active = isActive(item.href);
+                  
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center px-4 py-3 rounded-md text-base font-medium ${
+                        active 
+                          ? "bg-[#F7F2EB] text-[#8A6D50] border-l-4 border-[#B38E6A]" 
+                          : "text-neutral-600 hover:bg-[#F7F2EB]/50 hover:text-[#B38E6A]"
+                      }`}
+                    >
+                      <item.icon 
+                        size={20} 
+                        className="mr-3" 
+                        style={{ color: active ? "#B38E6A" : item.color }} 
+                      />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+                
+                {/* Itens do menu do usuário também no menu móvel */}
+                <div className="border-t border-[#D9C5B2]/30 pt-3 mt-3"></div>
+                
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center w-full px-4 py-3 rounded-md text-base font-medium text-red-600 hover:bg-red-50"
+                >
+                  <LogOut size={20} className="mr-3" />
+                  Sair
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      
+      {/* Espaçador para compensar a altura da navbar fixa */}
+      <div className="h-36"></div>
     </>
   )
 }

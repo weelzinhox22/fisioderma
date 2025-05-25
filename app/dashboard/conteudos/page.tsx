@@ -20,6 +20,7 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar'
+import Link from 'next/link'
 
 // Registrando plugins do GSAP
 if (typeof window !== 'undefined') {
@@ -91,7 +92,8 @@ export default function ConteudosPage() {
       duration: "15 min de leitura",
       date: "14/10/2023", 
       author: "Dr. Ricardo Martins",
-      featured: true
+      featured: true,
+      link: "/conteudos/criolise"
     },
     { 
       id: "4", 
@@ -105,7 +107,8 @@ export default function ConteudosPage() {
       duration: "10 min de leitura",
       date: "20/11/2023", 
       author: "Dra. Juliana Costa",
-      featured: false
+      featured: false,
+      link: "/conteudos/criolise"
     },
     { 
       id: "5", 
@@ -119,7 +122,8 @@ export default function ConteudosPage() {
       duration: "22 min",
       date: "05/12/2023", 
       author: "Dr. Paulo Henrique",
-      featured: true
+      featured: true,
+      link: "/conteudos/lipocavitacao"
     },
     { 
       id: "6", 
@@ -133,7 +137,8 @@ export default function ConteudosPage() {
       duration: "8 min de leitura",
       date: "15/11/2023", 
       author: "Dra. Fernanda Lima",
-      featured: false
+      featured: false,
+      link: "/conteudos/lipocavitacao"
     },
     { 
       id: "7", 
@@ -147,7 +152,8 @@ export default function ConteudosPage() {
       duration: "14 min de leitura",
       date: "01/12/2023", 
       author: "Dr. Roberto Santos",
-      featured: true
+      featured: true,
+      link: "/conteudos/ultrassom"
     },
     { 
       id: "8", 
@@ -353,34 +359,67 @@ export default function ConteudosPage() {
                       borderColor: item.color, 
                       borderLeftWidth: "4px"
                     }}
-                    onClick={() => setSelectedContent(item)}
+                    onClick={() => item.link ? null : setSelectedContent(item)}
                   >
-                    <div className="flex items-center mb-4">
-                      <div 
-                        className="p-2.5 rounded-md mr-3"
-                        style={{ backgroundColor: `${item.color}20` }}
-                      >
-                        <item.icon className="h-5 w-5" style={{ color: item.color }} />
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium" style={{ color: item.color }}>
-                          {item.category}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <h3 className="text-lg font-medium text-neutral-800 mb-2 line-clamp-2">{item.title}</h3>
-                    <p className="text-sm text-neutral-500 mb-4 line-clamp-2">{item.description}</p>
-                    
-                    <div className="flex items-center justify-between text-xs text-neutral-400">
-                      <div className="flex items-center">
-                        {item.type === "pdf" && <FileText className="h-3.5 w-3.5 mr-1" />}
-                        {item.type === "video" && <Play className="h-3.5 w-3.5 mr-1" />}
-                        {item.type === "artigo" && <BookOpen className="h-3.5 w-3.5 mr-1" />}
-                        <span>{item.duration}</span>
-                      </div>
-                      <span>{item.date}</span>
-                    </div>
+                    {item.link ? (
+                      <Link href={item.link} className="block">
+                        <div className="flex items-center mb-4">
+                          <div 
+                            className="p-2.5 rounded-md mr-3"
+                            style={{ backgroundColor: `${item.color}20` }}
+                          >
+                            <item.icon className="h-5 w-5" style={{ color: item.color }} />
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium" style={{ color: item.color }}>
+                              {item.category}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <h3 className="text-lg font-medium text-neutral-800 mb-2 line-clamp-2">{item.title}</h3>
+                        <p className="text-sm text-neutral-500 mb-4 line-clamp-2">{item.description}</p>
+                        
+                        <div className="flex items-center justify-between text-xs text-neutral-400">
+                          <div className="flex items-center">
+                            {item.type === "pdf" && <FileText className="h-3.5 w-3.5 mr-1" />}
+                            {item.type === "video" && <Play className="h-3.5 w-3.5 mr-1" />}
+                            {item.type === "artigo" && <BookOpen className="h-3.5 w-3.5 mr-1" />}
+                            <span>{item.duration}</span>
+                          </div>
+                          <span>{item.date}</span>
+                        </div>
+                      </Link>
+                    ) : (
+                      <>
+                        <div className="flex items-center mb-4">
+                          <div 
+                            className="p-2.5 rounded-md mr-3"
+                            style={{ backgroundColor: `${item.color}20` }}
+                          >
+                            <item.icon className="h-5 w-5" style={{ color: item.color }} />
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium" style={{ color: item.color }}>
+                              {item.category}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <h3 className="text-lg font-medium text-neutral-800 mb-2 line-clamp-2">{item.title}</h3>
+                        <p className="text-sm text-neutral-500 mb-4 line-clamp-2">{item.description}</p>
+                        
+                        <div className="flex items-center justify-between text-xs text-neutral-400">
+                          <div className="flex items-center">
+                            {item.type === "pdf" && <FileText className="h-3.5 w-3.5 mr-1" />}
+                            {item.type === "video" && <Play className="h-3.5 w-3.5 mr-1" />}
+                            {item.type === "artigo" && <BookOpen className="h-3.5 w-3.5 mr-1" />}
+                            <span>{item.duration}</span>
+                          </div>
+                          <span>{item.date}</span>
+                        </div>
+                      </>
+                    )}
                   </motion.div>
                 ))}
               </div>
@@ -406,43 +445,83 @@ export default function ConteudosPage() {
                     borderColor: item.color,
                     x: 3
                   }}
-                  onClick={() => setSelectedContent(item)}
+                  onClick={() => item.link ? null : setSelectedContent(item)}
                 >
-                  <div className="flex items-start md:items-center">
-                    <div 
-                      className="p-2.5 rounded-md mr-4 hidden md:flex"
-                      style={{ backgroundColor: `${item.color}15` }}
-                    >
-                      <item.icon className="h-5 w-5" style={{ color: item.color }} />
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center mb-1">
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ 
-                          backgroundColor: `${item.color}15`,
-                          color: item.color
-                        }}>
-                          {item.category}
-                        </span>
-                        <span className="text-xs text-neutral-400 ml-3">{item.type.toUpperCase()}</span>
+                  {item.link ? (
+                    <Link href={item.link} className="block">
+                      <div className="flex items-start md:items-center">
+                        <div 
+                          className="p-2.5 rounded-md mr-4 hidden md:flex"
+                          style={{ backgroundColor: `${item.color}15` }}
+                        >
+                          <item.icon className="h-5 w-5" style={{ color: item.color }} />
+                        </div>
+                        
+                        <div className="flex-1">
+                          <div className="flex items-center mb-1">
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ 
+                              backgroundColor: `${item.color}15`,
+                              color: item.color
+                            }}>
+                              {item.category}
+                            </span>
+                            <span className="text-xs text-neutral-400 ml-3">{item.type.toUpperCase()}</span>
+                          </div>
+                          
+                          <h3 className="text-base font-medium text-neutral-800">{item.title}</h3>
+                          <p className="text-sm text-neutral-500 mt-1 hidden md:block">{item.subtitle}</p>
+                          
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-xs text-neutral-400">{item.author}</span>
+                            <span className="text-xs text-neutral-400">{item.date}</span>
+                          </div>
+                        </div>
+                        
+                        <motion.div
+                          className="ml-4"
+                          whileHover={{ x: 3 }}
+                        >
+                          <ChevronRight className="h-5 w-5 text-neutral-300" />
+                        </motion.div>
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="flex items-start md:items-center">
+                      <div 
+                        className="p-2.5 rounded-md mr-4 hidden md:flex"
+                        style={{ backgroundColor: `${item.color}15` }}
+                      >
+                        <item.icon className="h-5 w-5" style={{ color: item.color }} />
                       </div>
                       
-                      <h3 className="text-base font-medium text-neutral-800">{item.title}</h3>
-                      <p className="text-sm text-neutral-500 mt-1 hidden md:block">{item.subtitle}</p>
-                      
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-neutral-400">{item.author}</span>
-                        <span className="text-xs text-neutral-400">{item.date}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center mb-1">
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ 
+                            backgroundColor: `${item.color}15`,
+                            color: item.color
+                          }}>
+                            {item.category}
+                          </span>
+                          <span className="text-xs text-neutral-400 ml-3">{item.type.toUpperCase()}</span>
+                        </div>
+                        
+                        <h3 className="text-base font-medium text-neutral-800">{item.title}</h3>
+                        <p className="text-sm text-neutral-500 mt-1 hidden md:block">{item.subtitle}</p>
+                        
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-xs text-neutral-400">{item.author}</span>
+                          <span className="text-xs text-neutral-400">{item.date}</span>
+                        </div>
                       </div>
+                      
+                      <motion.div
+                        className="ml-4"
+                        whileHover={{ x: 3 }}
+                      >
+                        <ChevronRight className="h-5 w-5 text-neutral-300" />
+                      </motion.div>
                     </div>
-                    
-                    <motion.div
-                      className="ml-4"
-                      whileHover={{ x: 3 }}
-                    >
-                      <ChevronRight className="h-5 w-5 text-neutral-300" />
-                    </motion.div>
-                  </div>
+                  )}
                 </motion.div>
               ))}
             </div>
