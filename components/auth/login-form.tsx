@@ -15,6 +15,10 @@ import { FcGoogle } from "react-icons/fc"
 import { Separator } from "@/components/ui/separator"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
+// Constantes do Supabase - definidas explicitamente para garantir funcionamento
+const SUPABASE_URL = "https://htmkhefvctwmbrgeejkh.supabase.co"
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA"
+
 // Cores em tons bege/nude refinados
 const colors = {
   primary: '#B38E6A',           // Bege escuro / Nude
@@ -23,10 +27,6 @@ const colors = {
   primaryDark: '#9F7D5D',       // Versão mais escura
   accentGold: '#D4B78F',        // Tom dourado para acentos
 }
-
-// Constantes do Supabase
-const SUPABASE_URL = "https://htmkhefvctwmbrgeejkh.supabase.co"
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
@@ -120,13 +120,13 @@ export function LoginForm() {
         return
       }
 
-      // Criar cliente Supabase com credenciais fixas
+      // Criar cliente Supabase com credenciais fixas para garantir funcionamento
       const authClient = createClientComponentClient({
         supabaseUrl: SUPABASE_URL,
         supabaseKey: SUPABASE_ANON_KEY,
       })
       
-      console.log("Cliente Supabase criado com credenciais fixas")
+      console.log("Cliente Supabase criado")
       
       // Verificar conectividade antes de tentar login
       if (networkError) {

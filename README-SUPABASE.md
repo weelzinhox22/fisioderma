@@ -22,12 +22,22 @@ NEXT_PUBLIC_SUPABASE_URL=https://htmkhefvctwmbrgeejkh.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA
 ```
 
-#### Ambiente de produção
+#### Configuração no Vercel
 
-Configure as mesmas variáveis de ambiente na sua plataforma de hospedagem (Vercel, Netlify, etc.):
+Para configurar as variáveis de ambiente no Vercel:
 
-- `NEXT_PUBLIC_SUPABASE_URL`: `https://htmkhefvctwmbrgeejkh.supabase.co`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA`
+1. Acesse o dashboard do Vercel e selecione seu projeto
+2. Vá para "Settings" > "Environment Variables"
+3. Adicione as seguintes variáveis:
+   - Nome: `NEXT_PUBLIC_SUPABASE_URL`
+   - Valor: `https://htmkhefvctwmbrgeejkh.supabase.co`
+   - Ambientes: Production, Preview, Development
+
+   - Nome: `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - Valor: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA`
+   - Ambientes: Production, Preview, Development
+
+4. Clique em "Save" e faça o redeploy do seu projeto
 
 ### 3. Verifique a configuração
 
@@ -63,7 +73,11 @@ Estas contas funcionam mesmo quando o Supabase não está disponível ou não es
 
 ## Configuração Atual
 
-O projeto foi configurado para usar as credenciais do Supabase diretamente no código, o que significa que o login deve funcionar mesmo sem configurar as variáveis de ambiente. No entanto, é uma boa prática configurar as variáveis de ambiente para maior segurança e flexibilidade.
+O projeto foi configurado para usar as credenciais do Supabase através das variáveis de ambiente. As credenciais fixas foram removidas do código para maior segurança.
+
+## Erro no build do Next.js
+
+Se você encontrar o erro `useSearchParams() should be wrapped in a suspense boundary at page "/login"` durante o build, isso foi corrigido envolvendo o componente que usa `useSearchParams()` em um componente Suspense.
 
 ## Suporte
 

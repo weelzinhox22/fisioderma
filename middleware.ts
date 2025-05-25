@@ -2,7 +2,7 @@ import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-// Constantes do Supabase
+// Constantes do Supabase - definidas explicitamente para garantir funcionamento
 const SUPABASE_URL = "https://htmkhefvctwmbrgeejkh.supabase.co"
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0bWtoZWZ2Y3R3bWJyZ2VlamtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3MTAzOTUsImV4cCI6MjA1NjI4NjM5NX0.4jJxHP980GW_Err3qBaHwa9eO4rqwA-LYo8c9kPBwnA"
 
@@ -29,14 +29,10 @@ export async function middleware(req: NextRequest) {
       return res
     }
     
-    // Criar cliente Supabase com as credenciais fixas
-    const supabase = createMiddlewareClient({ 
-      req, 
-      res,
-    }, {
-      supabaseUrl: SUPABASE_URL,
-      supabaseKey: SUPABASE_ANON_KEY,
-    })
+    // Criar cliente Supabase
+    // Nota: O middleware client não aceita supabaseUrl e supabaseKey diretamente
+    // Ele usa as variáveis de ambiente automaticamente
+    const supabase = createMiddlewareClient({ req, res })
     
     // Verificar sessão
     const {

@@ -28,7 +28,8 @@ function LoginFormSkeleton() {
   )
 }
 
-export default function LoginPage() {
+// Componente para mensagem de erro de conexão
+function ConnectionErrorMessage() {
   const searchParams = useSearchParams()
   const [connectionError, setConnectionError] = useState(false)
   
@@ -39,7 +40,27 @@ export default function LoginPage() {
       setConnectionError(true)
     }
   }, [searchParams])
+
+  if (!connectionError) return null;
   
+  return (
+    <div className="p-3 bg-red-50 border border-red-200 rounded-md mb-4 flex items-start gap-3">
+      <div className="shrink-0">
+        <AlertCircle size={18} className="text-red-500 mt-0.5" />
+      </div>
+      <div>
+        <p className="text-sm text-red-800">
+          Detectamos um problema de conexão com o servidor. Isso pode ocorrer se você estiver offline ou se o servidor estiver indisponível.
+        </p>
+        <p className="text-xs text-red-600 mt-1 font-semibold">
+          Você pode usar as contas especiais para acessar o sistema mesmo offline.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+export default function LoginPage() {
   return (
     <div 
       className="h-screen flex flex-col overflow-hidden relative bg-white"
@@ -101,21 +122,9 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {connectionError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md mb-4 flex items-start gap-3">
-              <div className="shrink-0">
-                <AlertCircle size={18} className="text-red-500 mt-0.5" />
-              </div>
-              <div>
-                <p className="text-sm text-red-800">
-                  Detectamos um problema de conexão com o servidor. Isso pode ocorrer se você estiver offline ou se o servidor estiver indisponível.
-                </p>
-                <p className="text-xs text-red-600 mt-1 font-semibold">
-                  Você pode usar as contas especiais para acessar o sistema mesmo offline.
-                </p>
-              </div>
-            </div>
-          )}
+          <Suspense fallback={<div className="p-3 bg-gray-50 border border-gray-200 rounded-md mb-4">Carregando...</div>}>
+            <ConnectionErrorMessage />
+          </Suspense>
 
           <div 
             className="p-7 rounded-xl shadow-lg backdrop-blur-sm bg-white/95"
